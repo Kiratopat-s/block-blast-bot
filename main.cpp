@@ -3,6 +3,8 @@
 #include <ctime>
 #include <vector>
 #include <string>
+#include <time.h>
+#include <chrono>
 
 class Coordinate {
     private:
@@ -706,6 +708,38 @@ class BlockBlastGame {
             randomlyPlaceBlocks();
             displayBoard(true);
         }
+
+        bool placeBoxOnBoard(const Box& box, int startX, int startY) {
+            // Capture start time (like Go's defer pattern)
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
+            // Lambda to calculate and print duration (similar to defer)
+            auto printDuration = [&startTime](bool success) {
+                auto endTime = std::chrono::high_resolution_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+                double durationMicroSecond = duration.count();
+                std::cout << "\033[33m[ Duration: " << durationMicroSecond << " μs ]\033[0m" << std::endl;
+            };
+            
+            for (const auto& coord : box.getBody()) {
+                int x = startX + coord.getX();
+                int y = startY + coord.getY();
+                if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE || board[x][y]) {
+                    std::cout << "\033[31mCannot place box " << box.getName() << " at (" << startX << ", " << startY << ").\033[0m" << std::endl;
+                    std::cout << "\033[36mRollback any changes made.\033[0m" << std::endl;
+                    printDuration(false);
+                    return false;
+                }
+            }
+            for (const auto& coord : box.getBody()) {
+                int x = startX + coord.getX();
+                int y = startY + coord.getY();
+                board[x][y] = true;
+            }
+            std::cout << "\033[32mSuccessfully placed box " << box.getName() << " at (" << startX << ", " << startY << ").\033[0m" << std::endl;
+            printDuration(true);
+            return true;
+        }
 };
 
 int main() {
@@ -717,6 +751,11 @@ int main() {
     // game.randomlyPlaceBlocks();
     // game.displayBoard();
     // game.getEmptyCellCount();
+
+    game.placeBoxOnBoard(SquareBox(3), 6, 0);
+    std::cout << "\nAfter placing a 3x3 SquareBox at (0,0):\n";
+    game.displayBoard();
+    game.getEmptyCellCount();
 
     // printf("Box Visual Representation:\n");
     // std::vector<Box> boxes = BoxBundle();
