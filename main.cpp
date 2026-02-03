@@ -5,6 +5,9 @@
 #include <string>
 #include <time.h>
 #include <chrono>
+#include <set>
+
+// Forward declaration - ClearedBoardInfo will be defined after Board class
 
 class Coordinate {
     private:
@@ -613,22 +616,62 @@ void NotifySelectedBox(Box selectedBox) {
     printBoxVisualOnBoard(selectedBox, 0, 0, 5);
 }
 
-class BlockBlastGame {
+class Board {
     private:
         static const int BOARD_SIZE = 8;
         static const char FILLED_CELL = '#';
         static const char EMPTY_CELL = ' ';
-        
         bool board[BOARD_SIZE][BOARD_SIZE];
-        
-        void initializeBoard() {
+
+    public:
+        Board() {
             for (int row = 0; row < BOARD_SIZE; ++row) {
                 for (int col = 0; col < BOARD_SIZE; ++col) {
                     board[row][col] = false;
                 }
             }
         }
-        
+
+        int getBoardSize() const { return BOARD_SIZE; }
+
+        bool isCellEmpty(int x, int y) const {
+            if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+                return false;
+            }
+            return !board[x][y];
+        }
+
+        bool isCellFilled(int x, int y) const {
+            if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+                return false;
+            }
+            return board[x][y];
+        }
+
+        bool isInBounds(int x, int y) const {
+            return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
+        }
+
+        void placeBlock(int x, int y) {
+            if (isInBounds(x, y)) {
+                board[x][y] = true;
+            }
+        }
+
+        void removeBlock(int x, int y) {
+            if (isInBounds(x, y)) {
+                board[x][y] = false;
+            }
+        }
+
+        void randomlyPlaceBlocks() {
+            for (int row = 0; row < BOARD_SIZE; ++row) {
+                for (int col = 0; col < BOARD_SIZE; ++col) {
+                    board[row][col] = (rand() % 2 == 1);
+                }
+            }
+        }
+
         void printColumnHeaders() const {
             std::cout << "   ";
             for (int col = 0; col < BOARD_SIZE; ++col) {
@@ -636,8 +679,8 @@ class BlockBlastGame {
             }
             std::cout << std::endl;
         }
-        
-        void printBoardNumeric() const {
+
+        void printNumeric() const {
             printColumnHeaders();
             for (int row = 0; row < BOARD_SIZE; ++row) {
                 std::cout << " " << row << " ";
@@ -647,8 +690,8 @@ class BlockBlastGame {
                 std::cout << std::endl;
             }
         }
-        
-        void printBoardVisual() const {
+
+        void printVisual() const {
             printColumnHeaders();
             for (int row = 0; row < BOARD_SIZE; ++row) {
                 std::cout << " " << row << " ";
@@ -660,12 +703,15 @@ class BlockBlastGame {
             }
         }
 
-    public:
-        BlockBlastGame() {
-            initializeBoard();
+        void display(bool visualMode = true) const {
+            if (visualMode) {
+                printVisual();
+            } else {
+                printNumeric();
+            }
         }
-        
-        void getEmptyCells() const {
+
+        void printEmptyCells() const {
             std::cout << "Empty Cells (row, col):" << std::endl;
             for (int row = 0; row < BOARD_SIZE; ++row) {
                 for (int col = 0; col < BOARD_SIZE; ++col) {
@@ -676,7 +722,7 @@ class BlockBlastGame {
             }
         }
 
-        void getEmptyCellCount() const {
+        int getEmptyCellCount() const {
             int count = 0;
             for (int row = 0; row < BOARD_SIZE; ++row) {
                 for (int col = 0; col < BOARD_SIZE; ++col) {
@@ -685,23 +731,44 @@ class BlockBlastGame {
                     }
                 }
             }
-            std::cout << "Total Empty Cells: " << count << std::endl;
+            return count;
+        }
+};
+
+// Struct to hold information about cleared rows/columns
+struct ClearedBoardInfo {
+    Board  clearedBoard;        // The board state after clearing
+    int    clearedRows;         // Number of full rows cleared
+    int    clearedCols;         // Number of full columns cleared  
+    int    totalClearedCells;   // Total cells cleared (accounting for overlaps)
+    int    comboCount;          // Number of row+column intersections (combos)
+    std::vector<int> clearedRowIndices;  // Which rows were cleared
+    std::vector<int> clearedColIndices;  // Which columns were cleared
+    
+    ClearedBoardInfo() : clearedRows(0), clearedCols(0), totalClearedCells(0), comboCount(0) {}
+};
+
+class BlockBlastGame {
+    private:
+        Board board;
+
+    public:
+        BlockBlastGame() {}
+        
+        void getEmptyCells() const {
+            board.printEmptyCells();
+        }
+
+        void getEmptyCellCount() const {
+            std::cout << "Total Empty Cells: " << board.getEmptyCellCount() << std::endl;
         }
 
         void displayBoard(bool visualMode = true) const {
-            if (visualMode) {
-                printBoardVisual();
-            } else {
-                printBoardNumeric();
-            }
+            board.display(visualMode);
         }
         
         void randomlyPlaceBlocks() {
-            for (int row = 0; row < BOARD_SIZE; ++row) {
-                for (int col = 0; col < BOARD_SIZE; ++col) {
-                    board[row][col] = (rand() % 2 == 1);
-                }
-            }
+            board.randomlyPlaceBlocks();
         }
         
         void start() {
@@ -721,41 +788,342 @@ class BlockBlastGame {
                 std::cout << "\033[33m[ Duration: " << durationMicroSecond << " μs ]\033[0m" << std::endl;
             };
             
+            // Phase 1: Validate all cells before placing any
             for (const auto& coord : box.getBody()) {
                 int x = startX + coord.getX();
                 int y = startY + coord.getY();
-                if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE || board[x][y]) {
+                if (!board.isInBounds(x, y) || board.isCellFilled(x, y)) {
                     std::cout << "\033[31mCannot place box " << box.getName() << " at (" << startX << ", " << startY << ").\033[0m" << std::endl;
                     std::cout << "\033[36mRollback any changes made.\033[0m" << std::endl;
                     printDuration(false);
                     return false;
                 }
             }
+            
+            // Phase 2: All validations passed, now place all cells
             for (const auto& coord : box.getBody()) {
                 int x = startX + coord.getX();
                 int y = startY + coord.getY();
-                board[x][y] = true;
+                board.placeBlock(x, y);
             }
             std::cout << "\033[32mSuccessfully placed box " << box.getName() << " at (" << startX << ", " << startY << ").\033[0m" << std::endl;
             printDuration(true);
             return true;
         }
+
+        Board BruteForceAlgorithm(const Box& box) {
+            // Capture start time
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
+            // Lambda to calculate and print duration (similar to defer)
+            auto printDuration = [&startTime]() {
+                auto endTime = std::chrono::high_resolution_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+                std::cout << "\033[33m[ Duration: " << duration.count() << " μs ]\033[0m" << std::endl;
+            };
+            
+            Board tempBoard = board;
+            for (int row = 0; row < board.getBoardSize(); ++row) {
+                for (int col = 0; col < board.getBoardSize(); ++col) {
+                    bool canPlace = true;
+                    for (const auto& coord : box.getBody()) {
+                        int x = row + coord.getX();
+                        int y = col + coord.getY();
+                        if (!tempBoard.isInBounds(x, y) || tempBoard.isCellFilled(x, y)) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    if (canPlace) {
+                        // Collect the coordinates that will be placed
+                        std::vector<std::pair<int, int>> placedCoords;
+                        for (const auto& coord : box.getBody()) {
+                            int x = row + coord.getX();
+                            int y = col + coord.getY();
+                            tempBoard.placeBlock(x, y);
+                            placedCoords.push_back({x, y});
+                        }
+                        
+                        std::cout << "\033[32m[BruteForce] Successfully placed " << box.getName() << " at (" << row << ", " << col << ").\033[0m" << std::endl;
+                        printDuration();
+                        
+                        // Print board with placed cells highlighted in red
+                        std::cout << "\n[Result Board - Red = Newly Placed]" << std::endl;
+                        printBoardWithHighlight(tempBoard, placedCoords);
+                        
+                        return tempBoard;
+                    }
+                }
+            }
+            std::cout << "\033[31m[BruteForce] Could not place " << box.getName() << " on the board.\033[0m" << std::endl;
+            printDuration();
+            return board; // Return original board if no placement found
+        }
+
+        bool useThisBoard(const Board& newBoard) {
+            board = newBoard;
+            return true;
+        }
+
+        ClearedBoardInfo blastTheBoard() {
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
+            ClearedBoardInfo info;
+            info.clearedBoard = board;  // Store initial state
+            
+            const int boardSize = board.getBoardSize();
+            std::vector<int> fullRows;
+            std::vector<int> fullCols;
+            
+            // Phase 1: Detect all full rows BEFORE clearing anything
+            for (int row = 0; row < boardSize; ++row) {
+                bool isFull = true;
+                for (int col = 0; col < boardSize; ++col) {
+                    if (!board.isCellFilled(row, col)) {
+                        isFull = false;
+                        break;
+                    }
+                }
+                if (isFull) {
+                    fullRows.push_back(row);
+                }
+            }
+            
+            // Phase 2: Detect all full columns BEFORE clearing anything
+            for (int col = 0; col < boardSize; ++col) {
+                bool isFull = true;
+                for (int row = 0; row < boardSize; ++row) {
+                    if (!board.isCellFilled(row, col)) {
+                        isFull = false;
+                        break;
+                    }
+                }
+                if (isFull) {
+                    fullCols.push_back(col);
+                }
+            }
+            
+            // Phase 3: Calculate combos (intersections where row and column both clear)
+            int comboCount = 0;
+            std::vector<std::pair<int, int>> comboIntersections;
+            for (int row : fullRows) {
+                for (int col : fullCols) {
+                    comboCount++;
+                    comboIntersections.push_back({row, col});
+                }
+            }
+            
+            // Phase 4: Track all cells to be cleared using a set to avoid duplicates
+            std::set<std::pair<int, int>> cellsToClear;
+            
+            // Add all cells from full rows
+            for (int row : fullRows) {
+                for (int col = 0; col < boardSize; ++col) {
+                    cellsToClear.insert({row, col});
+                }
+            }
+            
+            // Add all cells from full columns
+            for (int col : fullCols) {
+                for (int row = 0; row < boardSize; ++row) {
+                    cellsToClear.insert({row, col});
+                }
+            }
+            
+            // Phase 5: Clear all detected cells
+            for (const auto& cell : cellsToClear) {
+                board.removeBlock(cell.first, cell.second);
+            }
+            
+            // Populate ClearedBoardInfo
+            info.clearedRows = static_cast<int>(fullRows.size());
+            info.clearedCols = static_cast<int>(fullCols.size());
+            info.totalClearedCells = static_cast<int>(cellsToClear.size());
+            info.comboCount = comboCount;
+            info.clearedRowIndices = fullRows;
+            info.clearedColIndices = fullCols;
+            info.clearedBoard = board;  // Update to final state after clearing
+            
+            // Calculate duration
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+            
+            // Print detailed statistics with colors
+            std::cout << "\n\033[36m========== BLAST THE BOARD RESULTS ==========\033[0m\n";
+            
+            if (fullRows.empty() && fullCols.empty()) {
+                std::cout << "\033[33m⚠ No full rows or columns detected.\033[0m\n";
+            } else {
+                // Row clearing info
+                if (!fullRows.empty()) {
+                    std::cout << "\033[32m✓ Rows Cleared: " << info.clearedRows << "\033[0m";
+                    std::cout << " → [";
+                    for (size_t i = 0; i < fullRows.size(); ++i) {
+                        std::cout << "Row " << fullRows[i];
+                        if (i < fullRows.size() - 1) std::cout << ", ";
+                    }
+                    std::cout << "]\n";
+                }
+                
+                // Column clearing info
+                if (!fullCols.empty()) {
+                    std::cout << "\033[32m✓ Columns Cleared: " << info.clearedCols << "\033[0m";
+                    std::cout << " → [";
+                    for (size_t i = 0; i < fullCols.size(); ++i) {
+                        std::cout << "Col " << fullCols[i];
+                        if (i < fullCols.size() - 1) std::cout << ", ";
+                    }
+                    std::cout << "]\n";
+                }
+                
+                // Combo info (intersections)
+                if (comboCount > 0) {
+                    std::cout << "\033[35m★ COMBO x" << comboCount << "!\033[0m";
+                    std::cout << " (Row+Column intersections at: ";
+                    for (size_t i = 0; i < comboIntersections.size(); ++i) {
+                        std::cout << "(" << comboIntersections[i].first << "," << comboIntersections[i].second << ")";
+                        if (i < comboIntersections.size() - 1) std::cout << ", ";
+                    }
+                    std::cout << ")\n";
+                }
+                
+                // Total cells cleared
+                std::cout << "\033[34m◆ Total Cells Cleared: " << info.totalClearedCells << "\033[0m";
+                
+                // Show overlap calculation if there were combos
+                if (comboCount > 0) {
+                    int rawCells = (info.clearedRows * boardSize) + (info.clearedCols * boardSize);
+                    int overlap = rawCells - info.totalClearedCells;
+                    std::cout << " (Rows: " << info.clearedRows * boardSize 
+                              << " + Cols: " << info.clearedCols * boardSize 
+                              << " - Overlap: " << overlap << ")";
+                }
+                std::cout << "\n";
+            }
+            
+            std::cout << "\033[90m⏱ Duration: " << duration.count() << " μs\033[0m\n";
+            std::cout << "\033[36m==============================================\033[0m\n\n";
+            
+            return info;
+        }
+
+    private:
+        // Helper method to print board with specific cells highlighted in red
+        void printBoardWithHighlight(const Board& boardToPrint, const std::vector<std::pair<int, int>>& highlightCoords) const {
+            // Print column headers
+            std::cout << "   ";
+            for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+                std::cout << " " << col << " ";
+            }
+            std::cout << std::endl;
+            
+            // Print board with highlights
+            for (int row = 0; row < boardToPrint.getBoardSize(); ++row) {
+                std::cout << " " << row << " ";
+                for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+                    // Check if this coordinate should be highlighted
+                    bool isHighlighted = false;
+                    for (const auto& coord : highlightCoords) {
+                        if (coord.first == row && coord.second == col) {
+                            isHighlighted = true;
+                            break;
+                        }
+                    }
+                    
+                    if (isHighlighted) {
+                        // Red color for newly placed cells
+                        std::cout << "[\033[31m#\033[0m]";
+                    } else if (boardToPrint.isCellFilled(row, col)) {
+                        // Normal color for existing filled cells
+                        std::cout << "[#]";
+                    } else {
+                        // Empty cell
+                        std::cout << "[ ]";
+                    }
+                }
+                std::cout << std::endl;
+            }
+        }
 };
+
+Box randomShapeInBundle () {
+    std::vector<Box> boxes = BoxBundle();
+    int randomIndex = rand() % boxes.size();
+    return boxes[randomIndex];
+}
+
 
 int main() {
     srand(time(NULL));
+
+    Board tempBoard;
     
     BlockBlastGame game;
     game.displayBoard();
     game.getEmptyCellCount();
+
+    for (int i = 0; i <= 20; ++i) {
+        Box selectedBox = randomShapeInBundle();
+        // NotifySelectedBox(selectedBox);
+        
+        tempBoard = game.BruteForceAlgorithm(selectedBox);
+        game.useThisBoard(tempBoard);
+        game.displayBoard();
+        game.getEmptyCellCount();
+        
+        // Check and clear any full rows/columns
+        ClearedBoardInfo clearInfo = game.blastTheBoard();
+        
+        // Show the board after blasting if anything was cleared
+        if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
+            std::cout << "\n[Board After Blasting]" << std::endl;
+            game.displayBoard();
+            game.getEmptyCellCount();
+        }
+    }
+    
+    // while (true) {
+    //     Box selectedBox = MenuBoxSelection();
+    //     NotifySelectedBox(selectedBox);
+        
+    //     tempBoard = game.BruteForceAlgorithm(selectedBox);
+    //     game.useThisBoard(tempBoard);
+    //     game.displayBoard();
+    //     game.getEmptyCellCount();
+        
+    //     // Check and clear any full rows/columns
+    //     ClearedBoardInfo clearInfo = game.blastTheBoard();
+        
+    //     // Show the board after blasting if anything was cleared
+    //     if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
+    //         std::cout << "\n[Board After Blasting]" << std::endl;
+    //         game.displayBoard();
+    //         game.getEmptyCellCount();
+    //     }
+        
+    //     char continueChoice;
+    //     std::cout << "Do you want to place another box? (y/n): ";
+    //     std::cin >> continueChoice;
+    //     if (continueChoice != 'y' && continueChoice != 'Y') {
+    //         break;
+    //     }
+    // }
+    
+
     // game.randomlyPlaceBlocks();
     // game.displayBoard();
     // game.getEmptyCellCount();
 
-    game.placeBoxOnBoard(SquareBox(3), 6, 0);
-    std::cout << "\nAfter placing a 3x3 SquareBox at (0,0):\n";
-    game.displayBoard();
-    game.getEmptyCellCount();
+    // game.placeBoxOnBoard(SquareBox(3), 6, 0);
+    // std::cout << "\nAfter placing a 3x3 SquareBox at (0,0):\n";
+    // game.displayBoard();
+    // game.getEmptyCellCount();
+
+    // Board simBoard = game.BruteForceAlgorithm(RectangleBox(2,3));
+    // simBoard.printVisual();
+    // std::cout << "\nAfter BruteForceAlgorithm to place a 2x3 RectangleBox:\n";
+    // game.displayBoard();
+    // game.getEmptyCellCount();
 
     // printf("Box Visual Representation:\n");
     // std::vector<Box> boxes = BoxBundle();
