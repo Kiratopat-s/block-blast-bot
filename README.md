@@ -4,6 +4,7 @@ A high-performance C++ AI bot for solving 8x8 Block Blast puzzles. The bot uses 
 
 ## Features
 
+- **Visual Interactive Interface**: Beautiful piece gallery with rotation pattern viewer
 - **Multicore/Multithreaded**: OpenMP support for 2-5x speedup on multi-core CPUs
 - **Efficient Board Representation**: Uses bitset for O(1) operations
 - **Advanced AI Solver**: Beam search with configurable depth and pruning
@@ -72,12 +73,39 @@ ctest
 ./block-blast-bot
 ```
 
-Then enter:
+Then:
 
-1. Board state (8x8 grid, '.' for empty, 'X' for occupied)
-2. Three pieces (select from predefined shapes)
+1. **Choose a board**: Empty board or enter custom 8x8 state
+2. **Select 3 pieces** using the visual gallery:
+   - See all 13 piece shapes displayed visually
+   - Type 'R' to preview rotation patterns
+   - Select pieces by number (1-13) or random (0)
+3. **Get recommendations**: Bot displays optimal moves with:
+   - Visual move cards showing placement and rotation
+   - Final board preview after all moves
+   - Score impact for each piece
 
-The bot will compute and display the optimal move sequence.
+### Visual Piece Selection
+
+The bot features an interactive piece gallery:
+
+```
+======================================================================
+  PIECE GALLERY - Select from available shapes
+======================================================================
+  [1] Single        [2] Dot 2         [3] Dot 3
+    ██                ████              ██████
+
+  [4] Dot 4         [5] Dot 5         [6] Square 2x2
+    ████████          ██████████        ████
+                                        ████
+...
+  [0] Random piece
+  [R] Show rotations for a piece
+======================================================================
+```
+
+**Rotation Preview**: Press 'R' to see all rotation patterns before selecting!
 
 ### Automatic Mode
 
@@ -217,7 +245,43 @@ See [MACOS_OPENMP.md](MACOS_OPENMP.md) for macOS setup.
 cd build
 make test_bot
 ./test_bot
+
+# Demo programs
+./piece_selection_demo  # View piece gallery and rotations
+./visual_demo          # See visual display improvements
 ```
+
+## Quick Reference
+
+### Piece Selection Commands
+
+- `1-13`: Select specific piece shape
+- `0`: Random piece
+- `R`: View rotation patterns
+- `Enter`: Confirm selection
+
+### Available Pieces
+
+1. Single (1x1) - Single block
+2. Dot 2 (2x1) - Two horizontal blocks
+3. Dot 3 (3x1) - Three horizontal blocks
+4. Dot 4 (4x1) - Four horizontal blocks
+5. Dot 5 (5x1) - Five horizontal blocks
+6. Square 2x2 - 2x2 square
+7. Square 3x3 - 3x3 square
+8. L Small - Small L shape
+9. L Large - Large L shape
+10. T Shape - T-shaped piece
+11. Z Shape - Z-shaped piece
+12. Plus - Plus/cross shape
+13. Corner 3x3 - Corner piece
+
+## Documentation
+
+- **[PIECE_SELECTION.md](PIECE_SELECTION.md)** - Visual piece selection interface guide
+- **[VISUAL_IMPROVEMENTS.md](VISUAL_IMPROVEMENTS.md)** - Display enhancements documentation
+- **[MULTITHREADING.md](MULTITHREADING.md)** - Parallel processing details
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture overview
 
 ## Future Enhancements
 

@@ -109,18 +109,31 @@ void BotController::runAutomatic(int numGames) {
 }
 
 void BotController::displayBoard() const {
-    std::cout << "\nCurrent Board:" << std::endl;
-    std::cout << state_.getBoard().toString() << std::endl;
+    std::cout << "\n" << std::string(50, '=') << std::endl;
+    std::cout << "  CURRENT BOARD (8x8)" << std::endl;
+    std::cout << std::string(50, '=') << std::endl;
+    std::cout << state_.getBoard().toString();
+    std::cout << "  Score: " << state_.getScore() << " | Combo: " << state_.getComboCount() << "x" << std::endl;
 }
 
 void BotController::displayPieces() const {
-    std::cout << "\nAvailable Pieces:" << std::endl;
+    std::cout << "\n" << std::string(50, '-') << std::endl;
+    std::cout << "  AVAILABLE PIECES" << std::endl;
+    std::cout << std::string(50, '-') << std::endl;
+    
+    int displayCount = 0;
     for (int i = 0; i < PIECES_PER_TURN; ++i) {
         if (!state_.isPieceUsed(i)) {
-            std::cout << "Piece " << (i + 1) << ":" << std::endl;
-            std::cout << state_.getPiece(i).toString() << std::endl;
+            std::cout << "\n  Piece #" << (i + 1) << ":" << std::endl;
+            std::cout << state_.getPiece(i).toString();
+            displayCount++;
         }
     }
+    
+    if (displayCount == 0) {
+        std::cout << "  No pieces available (all used)" << std::endl;
+    }
+    std::cout << std::string(50, '-') << std::endl;
 }
 
 void BotController::displayStats() const {
@@ -192,44 +205,209 @@ bool BotController::readBoardFromInput() {
     return true;
 }
 
+void BotController::displayPieceGallery() const {
+    std::cout << "\n" << std::string(70, '=') << std::endl;
+    std::cout << "  PIECE GALLERY - Select from available shapes" << std::endl;
+    std::cout << std::string(70, '=') << std::endl;
+    
+    // Display pieces in a grid layout
+    const std::vector<std::pair<Piece::Shape, std::string>> pieceList = {
+        {Piece::Shape::SINGLE, "Single"},
+        {Piece::Shape::DOT_2, "Dot 2"},
+        {Piece::Shape::DOT_3, "Dot 3"},
+        {Piece::Shape::DOT_4, "Dot 4"},
+        {Piece::Shape::DOT_5, "Dot 5"},
+        {Piece::Shape::SQUARE_2, "Square 2x2"},
+        {Piece::Shape::SQUARE_3, "Square 3x3"},
+        {Piece::Shape::L_SMALL, "L Small"},
+        {Piece::Shape::L_LARGE, "L Large"},
+        {Piece::Shape::T_SHAPE, "T Shape"},
+        {Piece::Shape::Z_SHAPE, "Z Shape"},
+        {Piece::Shape::PLUS_SHAPE, "Plus"},
+        {Piece::Shape::CORNER_3, "Corner 3x3"}
+    };
+    
+    // Display 3 pieces per row
+    for (size_t i = 0; i < pieceList.size(); i += 3) {
+        // Print numbers
+        std::cout << "  ";
+        for (size_t j = i; j < std::min(i + 3, pieceList.size()); ++j) {
+            std::cout << "[" << (j + 1) << "] " << std::setw(12) << std::left << pieceList[j].second;
+            if (j < std::min(i + 3, pieceList.size()) - 1) std::cout << "  ";
+        }
+        std::cout << std::endl;
+        
+        // Get max height for this row
+        int maxHeight = 0;
+        for (size_t j = i; j < std::min(i + 3, pieceList.size()); ++j) {
+            auto piece = PieceFactory::createPiece(pieceList[j].first);
+            maxHeight = std::max(maxHeight, piece.getHeight());
+        }
+        
+        // Print pieces row by row
+        for (int row = 0; row < maxHeight; ++row) {
+            std::cout << "  ";
+            for (size_t j = i; j < std::min(i + 3, pieceList.size()); ++j) {
+                auto piece = PieceFactory::createPiece(pieceList[j].first);
+                std::cout << "  ";
+                
+                if (row < piece.getHeight()) {
+                    for (int col = 0; col < piece.getWidth(); ++col) {
+                        bool found = false;
+                        for (const auto& cell : piece.getCells()) {
+                            if (cell.x == col && cell.y == row) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        std::cout << (found ? "██" : "  ");
+                    }
+                    // Padding
+                    std::cout << std::string(12 - piece.getWidth() * 2, ' ');
+                } else {
+                    std::cout << std::string(12, ' ');
+                }
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+    
+    std::cout << "  [0] Random piece" << std::endl;
+    std::cout << "  [R] Show rotations for a piece" << std::endl;
+    std::cout << std::string(70, '=') << std::endl;
+}
+
+void BotController::displayPieceWithRotations(Piece::Shape shape, int number) const {
+    auto basePiece = PieceFactory::createPiece(shape);
+    auto rotations = basePiece.getAllRotations();
+    
+    std::cout << "\n" << std::string(70, '-') << std::endl;
+    std::cout << "  PIECE #" << number << " - Rotation Patterns (" << rotations.size() << " unique)" << std::endl;
+    std::cout << std::string(70, '-') << std::endl;
+    
+    for (size_t i = 0; i < rotations.size(); ++i) {
+        std::cout << "\n  Rotation " << i << " (" << (i * 90) << "°):" << std::endl;
+        const auto& piece = rotations[i];
+        
+        for (int row = 0; row < piece.getHeight(); ++row) {
+            std::cout << "    ";
+            for (int col = 0; col < piece.getWidth(); ++col) {
+                bool found = false;
+                for (const auto& cell : piece.getCells()) {
+                    if (cell.x == col && cell.y == row) {
+                        found = true;
+                        break;
+                    }
+                }
+                std::cout << (found ? "██" : "  ");
+            }
+            std::cout << std::endl;
+        }
+    }
+    std::cout << std::string(70, '-') << std::endl;
+}
+
+Piece BotController::selectPieceInteractive(int pieceNumber) {
+    while (true) {
+        displayPieceGallery();
+        
+        std::cout << "\nSelect piece #" << pieceNumber << " (1-13, 0 for random, R to see rotations): ";
+        std::string input;
+        std::cin >> input;
+        
+        // Check if user wants to see rotations
+        if (input == "R" || input == "r") {
+            std::cout << "Enter piece number to view rotations (1-13): ";
+            int pieceNum;
+            std::cin >> pieceNum;
+            if (pieceNum >= 1 && pieceNum <= 13) {
+                displayPieceWithRotations(static_cast<Piece::Shape>(pieceNum - 1), pieceNum);
+                std::cout << "\nPress Enter to continue...";
+                std::cin.ignore();
+                std::cin.get();
+            }
+            continue;
+        }
+        
+        // Try to parse as number
+        try {
+            int type = std::stoi(input);
+            
+            if (type == 0) {
+                std::cout << "  ✓ Random piece selected" << std::endl;
+                return PieceFactory::createRandomPiece();
+            } else if (type >= 1 && type <= 13) {
+                auto piece = PieceFactory::createPiece(static_cast<Piece::Shape>(type - 1));
+                std::cout << "  ✓ Piece selected" << std::endl;
+                return piece;
+            } else {
+                std::cout << "  ✗ Invalid number. Please enter 0-13." << std::endl;
+            }
+        } catch (...) {
+            std::cout << "  ✗ Invalid input. Please enter a number (0-13) or R." << std::endl;
+        }
+    }
+}
+
 std::array<Piece, PIECES_PER_TURN> BotController::readPiecesFromInput() {
     std::array<Piece, PIECES_PER_TURN> pieces;
     
-    std::cout << "Enter piece type for each (1-13 for predefined, 0 for random):" << std::endl;
-    std::cout << "1=Single, 2=Dot2, 3=Dot3, 4=Dot4, 5=Dot5, 6=Square2, 7=Square3" << std::endl;
-    std::cout << "8=L_Small, 9=L_Large, 10=T, 11=Z, 12=Plus, 13=Corner3" << std::endl;
+    std::cout << "\n" << std::string(70, '=') << std::endl;
+    std::cout << "  SELECT 3 PIECES" << std::endl;
+    std::cout << std::string(70, '=') << std::endl;
     
     for (int i = 0; i < PIECES_PER_TURN; ++i) {
-        int type;
-        std::cout << "Piece " << (i + 1) << ": ";
-        std::cin >> type;
-        
-        if (type == 0) {
-            pieces[i] = PieceFactory::createRandomPiece();
-        } else if (type >= 1 && type <= 13) {
-            pieces[i] = PieceFactory::createPiece(static_cast<Piece::Shape>(type - 1));
-        } else {
-            std::cout << "Invalid type, using random piece." << std::endl;
-            pieces[i] = PieceFactory::createRandomPiece();
-        }
+        pieces[i] = selectPieceInteractive(i + 1);
     }
+    
+    std::cout << "\n" << std::string(70, '=') << std::endl;
+    std::cout << "  ✓ All pieces selected!" << std::endl;
+    std::cout << std::string(70, '=') << std::endl;
     
     return pieces;
 }
 
 void BotController::printMoveSequence(const MoveSequence& sequence) const {
-    std::cout << "\n=== Best Move Sequence ===" << std::endl;
-    std::cout << "Total score: " << sequence.totalScore << std::endl;
-    std::cout << "Pieces placed: " << sequence.piecesPlaced << std::endl;
+    std::cout << "\n" << std::string(50, '=') << std::endl;
+    std::cout << "  RECOMMENDED MOVES" << std::endl;
+    std::cout << std::string(50, '=') << std::endl;
+    std::cout << "  Total Score: " << std::fixed << std::setprecision(1) << sequence.totalScore << std::endl;
+    std::cout << "  Pieces Placed: " << sequence.piecesPlaced << "/" << PIECES_PER_TURN << std::endl;
+    
+    if (sequence.piecesPlaced == 0) {
+        std::cout << "\n  ⚠ No valid moves found! Game Over." << std::endl;
+        std::cout << std::string(50, '=') << std::endl;
+        return;
+    }
+    
+    // Create a preview board for showing placements
+    GameState previewState = state_;
     
     for (int i = 0; i < sequence.piecesPlaced; ++i) {
         const auto& move = sequence.moves[i];
-        std::cout << "\nMove " << (i + 1) << ":" << std::endl;
-        std::cout << "  Piece: " << (move.pieceIndex + 1) << std::endl;
-        std::cout << "  Position: (" << move.position.x << ", " << move.position.y << ")" << std::endl;
-        std::cout << "  Rotation: " << move.rotation << std::endl;
-        std::cout << "  Score: " << move.score << std::endl;
+        std::cout << "\n  ┌" << std::string(44, '-') << "┐" << std::endl;
+        std::cout << "  │ Move #" << (i + 1) << ": Piece #" << (move.pieceIndex + 1) 
+                  << std::string(28 - std::to_string(i+1).length() - std::to_string(move.pieceIndex+1).length(), ' ') << "│" << std::endl;
+        std::cout << "  ├" << std::string(44, '-') << "┤" << std::endl;
+        std::cout << "  │ Place at: (" << move.position.x << ", " << move.position.y << ")"
+                  << std::string(30 - std::to_string(move.position.x).length() - std::to_string(move.position.y).length(), ' ') << "│" << std::endl;
+        std::cout << "  │ Rotation: " << move.rotation 
+                  << std::string(31 - std::to_string(move.rotation).length(), ' ') << "│" << std::endl;
+        std::cout << "  │ Score Impact: +" << std::fixed << std::setprecision(1) << move.score
+                  << std::string(27 - std::to_string(static_cast<int>(move.score)).length(), ' ') << "│" << std::endl;
+        std::cout << "  └" << std::string(44, '-') << "┘" << std::endl;
+        
+        // Execute move on preview for visual
+        previewState.executeMove(move);
     }
+    
+    // Show final board state after all moves
+    std::cout << "\n  Final Board After Moves:" << std::endl;
+    std::cout << previewState.getBoard().toString();
+    std::cout << "  Final Score: " << previewState.getScore() 
+              << " | Combo: " << previewState.getComboCount() << "x" << std::endl;
+    std::cout << std::string(50, '=') << std::endl;
 }
 
 // CLI implementations

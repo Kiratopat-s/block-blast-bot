@@ -118,9 +118,18 @@ std::string Piece::toString() const {
     if (cells_.empty()) return "Empty piece";
     
     std::stringstream ss;
-    ss << "Piece " << width_ << "x" << height_ << ":\n";
     
+    // Top border
+    ss << "  ┌";
+    for (int x = 0; x < width_; ++x) {
+        ss << "──";
+        if (x < width_ - 1) ss << "─";
+    }
+    ss << "┐\n";
+    
+    // Piece rows
     for (int y = 0; y < height_; ++y) {
+        ss << "  │";
         for (int x = 0; x < width_; ++x) {
             bool found = false;
             for (const auto& cell : cells_) {
@@ -129,10 +138,23 @@ std::string Piece::toString() const {
                     break;
                 }
             }
-            ss << (found ? "█ " : ". ");
+            if (found) {
+                ss << "██";
+            } else {
+                ss << "  ";
+            }
+            if (x < width_ - 1) ss << " ";
         }
-        ss << "\n";
+        ss << "│\n";
     }
+    
+    // Bottom border
+    ss << "  └";
+    for (int x = 0; x < width_; ++x) {
+        ss << "──";
+        if (x < width_ - 1) ss << "─";
+    }
+    ss << "┘ (" << width_ << "x" << height_ << ")\n";
     
     return ss.str();
 }

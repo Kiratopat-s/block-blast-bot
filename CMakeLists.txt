@@ -69,6 +69,24 @@ add_executable(example
     src/BotController.cpp
 )
 
+# Visual demo executable
+add_executable(visual_demo
+    src/visual_demo.cpp
+    ${CORE_SOURCES}
+    ${GAME_SOURCES}
+    ${AI_SOURCES}
+    src/BotController.cpp
+)
+
+# Piece selection demo executable
+add_executable(piece_selection_demo
+    src/piece_selection_demo.cpp
+    ${CORE_SOURCES}
+    ${GAME_SOURCES}
+    ${AI_SOURCES}
+    src/BotController.cpp
+)
+
 # Installation
 install(TARGETS block-blast-bot DESTINATION bin)
 

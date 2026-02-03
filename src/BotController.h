@@ -25,6 +25,7 @@ public:
     void displayBoard() const;
     void displayPieces() const;
     void displayStats() const;
+    void printMoveSequence(const MoveSequence& sequence) const;
     
     // Game control
     void newGame();
@@ -48,7 +49,9 @@ private:
     bool readBoardFromInput();
     std::array<Piece, PIECES_PER_TURN> readPiecesFromInput();
     Piece parsePieceFromString(const std::string& str);
-    void printMoveSequence(const MoveSequence& sequence) const;
+    void displayPieceGallery() const;
+    void displayPieceWithRotations(Piece::Shape shape, int number) const;
+    Piece selectPieceInteractive(int pieceNumber);
 };
 
 /**

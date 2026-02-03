@@ -198,19 +198,43 @@ void Board::fromBitboard(uint64_t bitboard) {
 
 std::string Board::toString() const {
     std::stringstream ss;
-    ss << "  ";
+    
+    // Top border with column numbers
+    ss << "    ";
     for (int x = 0; x < BOARD_SIZE; ++x) {
-        ss << x << " ";
+        ss << x << "  ";
     }
     ss << "\n";
     
-    for (int y = 0; y < BOARD_SIZE; ++y) {
-        ss << y << " ";
-        for (int x = 0; x < BOARD_SIZE; ++x) {
-            ss << (isCellOccupied(x, y) ? "█ " : "· ");
-        }
-        ss << "\n";
+    // Top edge
+    ss << "  ┌";
+    for (int x = 0; x < BOARD_SIZE; ++x) {
+        ss << "──";
+        if (x < BOARD_SIZE - 1) ss << "─";
     }
+    ss << "┐\n";
+    
+    // Board rows
+    for (int y = 0; y < BOARD_SIZE; ++y) {
+        ss << y << " │";
+        for (int x = 0; x < BOARD_SIZE; ++x) {
+            if (isCellOccupied(x, y)) {
+                ss << "██";
+            } else {
+                ss << "  ";
+            }
+            if (x < BOARD_SIZE - 1) ss << " ";
+        }
+        ss << "│\n";
+    }
+    
+    // Bottom edge
+    ss << "  └";
+    for (int x = 0; x < BOARD_SIZE; ++x) {
+        ss << "──";
+        if (x < BOARD_SIZE - 1) ss << "─";
+    }
+    ss << "┘\n";
     
     return ss.str();
 }
