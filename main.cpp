@@ -6,8 +6,29 @@
 #include <time.h>
 #include <chrono>
 #include <set>
+#include <algorithm>
+#include <iomanip>
 
 // Forward declaration - ClearedBoardInfo will be defined after Board class
+
+// ============================================================
+//                    PRINT UTILITIES NAMESPACE
+// ============================================================
+namespace PrintUtils {
+    // ANSI Color codes
+    const std::string RESET   = "\033[0m";
+    const std::string RED     = "\033[31m";
+    const std::string GREEN   = "\033[32m";
+    const std::string YELLOW  = "\033[33m";
+    const std::string BLUE    = "\033[34m";
+    const std::string MAGENTA = "\033[35m";
+    const std::string CYAN    = "\033[36m";
+    const std::string GRAY    = "\033[90m";
+    
+    // Cell characters
+    const char FILLED_CELL = '#';
+    const char EMPTY_CELL  = ' ';
+}
 
 class Coordinate {
     private:
@@ -329,18 +350,45 @@ std::vector<Box> BoxBundle() {
     return boxes;
 }
 
+// ============================================================
+//                    PRINT UTILITY FUNCTIONS
+// ============================================================
+
+// Print a box visual on a small preview board
 void printBoxVisualOnBoard(const Box& box, int startX, int startY, int boardSize) {
-    std::vector<std::vector<char>> board(boardSize, std::vector<char>(boardSize, ' '));
+    std::vector<std::vector<char>> board(boardSize, std::vector<char>(boardSize, PrintUtils::EMPTY_CELL));
     for (const auto& coord : box.getBody()) {
         int x = startX + coord.getX();
         int y = startY + coord.getY();
         if (x < boardSize && y < boardSize) {
-            board[x][y] = '#';
+            board[x][y] = PrintUtils::FILLED_CELL;
         }
     }
     for (int i = 0; i < boardSize; ++i) {
         for (int j = 0; j < boardSize; ++j) {
             std::cout << "[" << board[i][j] << "]";
+        }
+        std::cout << std::endl;
+    }
+}
+
+// Print a box visual with custom color
+void printBoxVisualWithColor(const Box& box, int startX, int startY, int boardSize, const std::string& color) {
+    std::vector<std::vector<char>> board(boardSize, std::vector<char>(boardSize, PrintUtils::EMPTY_CELL));
+    for (const auto& coord : box.getBody()) {
+        int x = startX + coord.getX();
+        int y = startY + coord.getY();
+        if (x < boardSize && y < boardSize) {
+            board[x][y] = PrintUtils::FILLED_CELL;
+        }
+    }
+    for (int i = 0; i < boardSize; ++i) {
+        for (int j = 0; j < boardSize; ++j) {
+            if (board[i][j] == PrintUtils::FILLED_CELL) {
+                std::cout << "[" << color << board[i][j] << PrintUtils::RESET << "]";
+            } else {
+                std::cout << "[" << board[i][j] << "]";
+            }
         }
         std::cout << std::endl;
     }
@@ -735,6 +783,236 @@ class Board {
         }
 };
 
+// ============================================================
+//           BOARD PRINT UTILITY FUNCTIONS (requires Board)
+// ============================================================
+
+// Print a Board with specific cells highlighted in a given color
+void printBoardWithHighlight(const Board& boardToPrint, 
+                             const std::vector<std::pair<int, int>>& highlightCoords,
+                             const std::string& highlightColor = PrintUtils::RED) {
+    // Print column headers
+    std::cout << "   ";
+    for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+        std::cout << " " << col << " ";
+    }
+    std::cout << std::endl;
+    
+    // Print board with highlights
+    for (int row = 0; row < boardToPrint.getBoardSize(); ++row) {
+        std::cout << " " << row << " ";
+        for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+            // Check if this coordinate should be highlighted
+            bool isHighlighted = false;
+            for (const auto& coord : highlightCoords) {
+                if (coord.first == row && coord.second == col) {
+                    isHighlighted = true;
+                    break;
+                }
+            }
+            
+            if (isHighlighted) {
+                // Highlighted color for specified cells
+                std::cout << "[" << highlightColor << PrintUtils::FILLED_CELL << PrintUtils::RESET << "]";
+            } else if (boardToPrint.isCellFilled(row, col)) {
+                // Normal color for existing filled cells
+                std::cout << "[" << PrintUtils::FILLED_CELL << "]";
+            } else {
+                // Empty cell
+                std::cout << "[" << PrintUtils::EMPTY_CELL << "]";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+// Print a Board with two different highlight colors (e.g., placed cells vs cleared cells)
+void printBoardWithDualHighlight(const Board& boardToPrint,
+                                  const std::vector<std::pair<int, int>>& primaryCoords,
+                                  const std::vector<std::pair<int, int>>& secondaryCoords,
+                                  const std::string& primaryColor = PrintUtils::RED,
+                                  const std::string& secondaryColor = PrintUtils::GREEN) {
+    // Print column headers
+    std::cout << "   ";
+    for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+        std::cout << " " << col << " ";
+    }
+    std::cout << std::endl;
+    
+    // Print board with highlights
+    for (int row = 0; row < boardToPrint.getBoardSize(); ++row) {
+        std::cout << " " << row << " ";
+        for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+            bool isPrimary = false;
+            bool isSecondary = false;
+            
+            for (const auto& coord : primaryCoords) {
+                if (coord.first == row && coord.second == col) {
+                    isPrimary = true;
+                    break;
+                }
+            }
+            for (const auto& coord : secondaryCoords) {
+                if (coord.first == row && coord.second == col) {
+                    isSecondary = true;
+                    break;
+                }
+            }
+            
+            if (isPrimary) {
+                std::cout << "[" << primaryColor << PrintUtils::FILLED_CELL << PrintUtils::RESET << "]";
+            } else if (isSecondary) {
+                std::cout << "[" << secondaryColor << PrintUtils::FILLED_CELL << PrintUtils::RESET << "]";
+            } else if (boardToPrint.isCellFilled(row, col)) {
+                std::cout << "[" << PrintUtils::FILLED_CELL << "]";
+            } else {
+                std::cout << "[" << PrintUtils::EMPTY_CELL << "]";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+// Print a Board with multiple piece placements in different colors
+// pieceCoordsList[0] = first piece coords (RED), [1] = second (GREEN), [2] = third (YELLOW), etc.
+void printBoardWithMultiPieceHighlight(const Board& boardToPrint,
+                                        const std::vector<std::vector<std::pair<int, int>>>& pieceCoordsList,
+                                        const Board& originalBoard) {
+    // Color palette for different pieces: RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN
+    std::vector<std::string> pieceColors = {
+        PrintUtils::RED, PrintUtils::GREEN, PrintUtils::YELLOW,
+        PrintUtils::BLUE, PrintUtils::MAGENTA, PrintUtils::CYAN
+    };
+    
+    // Print column headers
+    std::cout << "   ";
+    for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+        std::cout << " " << col << " ";
+    }
+    std::cout << std::endl;
+    
+    // Print board with multi-color highlights
+    for (int row = 0; row < boardToPrint.getBoardSize(); ++row) {
+        std::cout << " " << row << " ";
+        for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
+            // Check which piece (if any) this coordinate belongs to
+            int pieceIndex = -1;
+            for (size_t p = 0; p < pieceCoordsList.size(); ++p) {
+                for (const auto& coord : pieceCoordsList[p]) {
+                    if (coord.first == row && coord.second == col) {
+                        pieceIndex = static_cast<int>(p);
+                        break;
+                    }
+                }
+                if (pieceIndex >= 0) break;
+            }
+            
+            if (pieceIndex >= 0) {
+                // This cell belongs to a placed piece - use piece color
+                std::string color = pieceColors[pieceIndex % pieceColors.size()];
+                std::cout << "[" << color << PrintUtils::FILLED_CELL << PrintUtils::RESET << "]";
+            } else if (originalBoard.isCellFilled(row, col)) {
+                // This cell was in the original board - default color
+                std::cout << "[" << PrintUtils::FILLED_CELL << "]";
+            } else if (boardToPrint.isCellFilled(row, col)) {
+                // Filled but not tracked (shouldn't happen normally)
+                std::cout << "[" << PrintUtils::FILLED_CELL << "]";
+            } else {
+                // Empty cell
+                std::cout << "[" << PrintUtils::EMPTY_CELL << "]";
+            }
+        }
+        std::cout << std::endl;
+    }
+    
+    // Print legend
+    std::cout << PrintUtils::GRAY << "   Legend: ";
+    for (size_t i = 0; i < std::min(pieceCoordsList.size(), pieceColors.size()); ++i) {
+        std::cout << pieceColors[i] << "[#]" << PrintUtils::RESET << "=Piece " << (i+1) << " ";
+    }
+    std::cout << "[#]=Original" << PrintUtils::RESET << "\n";
+}
+
+// Struct to hold board scoring information for strategy evaluation
+struct BoardScore {
+    Board board;
+    int score;
+    int emptyCells;
+    int potentialRowClears;      // Rows with 7+ filled cells
+    int potentialColClears;      // Columns with 7+ filled cells
+    int almostFullRows;          // Rows with 6+ filled cells
+    int almostFullCols;          // Columns with 6+ filled cells
+    int centerControl;           // Cells filled in center 4x4 area
+    int edgeSpread;              // How spread out pieces are on edges
+    size_t boardIndex;           // Original index for reference
+    std::vector<std::vector<std::pair<int, int>>> pieceCoords;  // Coords for each piece placement
+    
+    BoardScore() : score(0), emptyCells(0), potentialRowClears(0), potentialColClears(0),
+                   almostFullRows(0), almostFullCols(0), centerControl(0), edgeSpread(0), boardIndex(0) {}
+};
+
+// Function to calculate board score based on multiple strategic factors
+BoardScore calculateBoardScore(const Board& b, size_t index) {
+    BoardScore bs;
+    bs.board = b;
+    bs.boardIndex = index;
+    
+    const int boardSize = b.getBoardSize();
+    bs.emptyCells = b.getEmptyCellCount();
+    
+    // Check each row for potential clears
+    for (int row = 0; row < boardSize; ++row) {
+        int filledCount = 0;
+        for (int col = 0; col < boardSize; ++col) {
+            if (b.isCellFilled(row, col)) filledCount++;
+        }
+        if (filledCount == boardSize) bs.potentialRowClears++;      // Full row (will clear)
+        else if (filledCount >= 7) bs.potentialRowClears++;         // Almost full
+        else if (filledCount >= 6) bs.almostFullRows++;
+    }
+    
+    // Check each column for potential clears
+    for (int col = 0; col < boardSize; ++col) {
+        int filledCount = 0;
+        for (int row = 0; row < boardSize; ++row) {
+            if (b.isCellFilled(row, col)) filledCount++;
+        }
+        if (filledCount == boardSize) bs.potentialColClears++;      // Full column (will clear)
+        else if (filledCount >= 7) bs.potentialColClears++;         // Almost full
+        else if (filledCount >= 6) bs.almostFullCols++;
+    }
+    
+    // Calculate center control (center 4x4 area)
+    for (int row = 2; row < 6; ++row) {
+        for (int col = 2; col < 6; ++col) {
+            if (b.isCellFilled(row, col)) bs.centerControl++;
+        }
+    }
+    
+    // Calculate edge spread (corners and edges)
+    for (int row = 0; row < boardSize; ++row) {
+        for (int col = 0; col < boardSize; ++col) {
+            if (b.isCellFilled(row, col)) {
+                if (row == 0 || row == boardSize-1 || col == 0 || col == boardSize-1) {
+                    bs.edgeSpread++;
+                }
+            }
+        }
+    }
+    
+    // Calculate final score (higher is better)
+    // Priority: Clearing lines > Almost clearing > Empty cells > Center control
+    bs.score = (bs.potentialRowClears * 100) +    // High priority for potential clears
+               (bs.potentialColClears * 100) +
+               (bs.almostFullRows * 50) +          // Medium priority for almost full
+               (bs.almostFullCols * 50) +
+               (bs.emptyCells * 2) +               // More empty = more flexibility
+               (bs.centerControl * 3) -            // Slight bonus for center control
+               (bs.edgeSpread * 1);                // Slight penalty for edge clutter
+    
+    return bs;
+}
+
 // Struct to hold information about cleared rows/columns
 struct ClearedBoardInfo {
     Board  clearedBoard;        // The board state after clearing
@@ -785,7 +1063,7 @@ class BlockBlastGame {
                 auto endTime = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
                 double durationMicroSecond = duration.count();
-                std::cout << "\033[33m[ Duration: " << durationMicroSecond << " μs ]\033[0m" << std::endl;
+                std::cout << PrintUtils::YELLOW << "[ Duration: " << durationMicroSecond << " μs ]" << PrintUtils::RESET << std::endl;
             };
             
             // Phase 1: Validate all cells before placing any
@@ -793,8 +1071,8 @@ class BlockBlastGame {
                 int x = startX + coord.getX();
                 int y = startY + coord.getY();
                 if (!board.isInBounds(x, y) || board.isCellFilled(x, y)) {
-                    std::cout << "\033[31mCannot place box " << box.getName() << " at (" << startX << ", " << startY << ").\033[0m" << std::endl;
-                    std::cout << "\033[36mRollback any changes made.\033[0m" << std::endl;
+                    std::cout << PrintUtils::RED << "Cannot place box " << box.getName() << " at (" << startX << ", " << startY << ")." << PrintUtils::RESET << std::endl;
+                    std::cout << PrintUtils::CYAN << "Rollback any changes made." << PrintUtils::RESET << std::endl;
                     printDuration(false);
                     return false;
                 }
@@ -806,7 +1084,7 @@ class BlockBlastGame {
                 int y = startY + coord.getY();
                 board.placeBlock(x, y);
             }
-            std::cout << "\033[32mSuccessfully placed box " << box.getName() << " at (" << startX << ", " << startY << ").\033[0m" << std::endl;
+            std::cout << PrintUtils::GREEN << "Successfully placed box " << box.getName() << " at (" << startX << ", " << startY << ")." << PrintUtils::RESET << std::endl;
             printDuration(true);
             return true;
         }
@@ -819,7 +1097,7 @@ class BlockBlastGame {
             auto printDuration = [&startTime]() {
                 auto endTime = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
-                std::cout << "\033[33m[ Duration: " << duration.count() << " μs ]\033[0m" << std::endl;
+                std::cout << PrintUtils::YELLOW << "[ Duration: " << duration.count() << " μs ]" << PrintUtils::RESET << std::endl;
             };
             
             Board tempBoard = board;
@@ -844,7 +1122,7 @@ class BlockBlastGame {
                             placedCoords.push_back({x, y});
                         }
                         
-                        std::cout << "\033[32m[BruteForce] Successfully placed " << box.getName() << " at (" << row << ", " << col << ").\033[0m" << std::endl;
+                        std::cout << PrintUtils::GREEN << "[BruteForce] Successfully placed " << box.getName() << " at (" << row << ", " << col << ")." << PrintUtils::RESET << std::endl;
                         printDuration();
                         
                         // Print board with placed cells highlighted in red
@@ -855,9 +1133,282 @@ class BlockBlastGame {
                     }
                 }
             }
-            std::cout << "\033[31m[BruteForce] Could not place " << box.getName() << " on the board.\033[0m" << std::endl;
+            std::cout << PrintUtils::RED << "[BruteForce] Could not place " << box.getName() << " on the board." << PrintUtils::RESET << std::endl;
             printDuration();
             return board; // Return original board if no placement found
+        }
+
+        std::vector<Board> GenerateAllPossibleBoards(const Box& box) {
+            // Capture start time
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
+            std::vector<Board> possibleBoards;
+            std::vector<std::vector<std::pair<int, int>>> allPlacedCoords; // Track placed coords for each board
+            
+            for (int row = 0; row < board.getBoardSize(); ++row) {
+                for (int col = 0; col < board.getBoardSize(); ++col) {
+                    bool canPlace = true;
+                    for (const auto& coord : box.getBody()) {
+                        int x = row + coord.getX();
+                        int y = col + coord.getY();
+                        if (!board.isInBounds(x, y) || board.isCellFilled(x, y)) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    if (canPlace) {
+                        Board newBoard = board;
+                        std::vector<std::pair<int, int>> placedCoords;
+                        for (const auto& coord : box.getBody()) {
+                            int x = row + coord.getX();
+                            int y = col + coord.getY();
+                            newBoard.placeBlock(x, y);
+                            placedCoords.push_back({x, y});
+                        }
+                        possibleBoards.push_back(newBoard);
+                        allPlacedCoords.push_back(placedCoords);
+                    }
+                }
+            }
+            
+            // Calculate duration
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+            
+            // Print results with colors
+            std::cout << "\n" << PrintUtils::CYAN << "========== GENERATE ALL POSSIBLE BOARDS ==========" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::GREEN << "✓ Box: " << box.getName() << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::BLUE << "◆ Total Possible Placements: " << possibleBoards.size() << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::GRAY << "⏱ Duration: " << duration.count() << " μs" << PrintUtils::RESET << "\n";
+            
+            if (possibleBoards.empty()) {
+                std::cout << PrintUtils::YELLOW << "⚠ No valid placements found for this box." << PrintUtils::RESET << "\n";
+            } else {
+                std::cout << "\n" << PrintUtils::MAGENTA << "Preview of all " << possibleBoards.size() << " possible placements:" << PrintUtils::RESET << "\n";
+                for (size_t i = 0; i < possibleBoards.size(); ++i) {
+                    std::cout << "\n" << PrintUtils::YELLOW << "[Placement #" << (i + 1) << "]" << PrintUtils::RESET << "\n";
+                    printBoardWithHighlight(possibleBoards[i], allPlacedCoords[i]);
+                }
+            }
+            
+            std::cout << PrintUtils::CYAN << "==================================================" << PrintUtils::RESET << "\n\n";
+            
+            return possibleBoards;
+        }
+
+        std::vector<Board> GenerateAllPossibleBoardsByManyPiecesCombination(const std::vector<Box>& boxes, bool verbose = false) {
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
+            // Color palette for different pieces
+            std::vector<std::string> pieceColors = {
+                PrintUtils::RED, PrintUtils::GREEN, PrintUtils::YELLOW,
+                PrintUtils::BLUE, PrintUtils::MAGENTA, PrintUtils::CYAN
+            };
+            
+            // Store the original board for color reference
+            Board originalBoard = board;
+            
+            // Track boards and their piece coordinates together
+            // Each entry: {board, vector of coords for each piece}
+            std::vector<std::pair<Board, std::vector<std::vector<std::pair<int, int>>>>> currentBoardsWithCoords;
+            currentBoardsWithCoords.push_back({board, {}});
+            
+            std::vector<size_t> boardsPerStep;  // Track how many boards generated at each step
+            
+            std::cout << "\n" << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "    GENERATING ALL POSSIBLE BOARDS BY MULTI-PIECE COMBINATION        " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+            
+            // Print pieces being placed
+            std::cout << PrintUtils::GRAY << "Pieces to place: " << PrintUtils::RESET;
+            for (size_t i = 0; i < boxes.size(); ++i) {
+                std::string color = pieceColors[i % pieceColors.size()];
+                std::cout << color << "[" << (i+1) << "] " << boxes[i].getName() << PrintUtils::RESET;
+                if (i < boxes.size() - 1) std::cout << " → ";
+            }
+            std::cout << "\n\n";
+            
+            // Generate boards for each piece sequentially
+            for (size_t boxIdx = 0; boxIdx < boxes.size(); ++boxIdx) {
+                const auto& box = boxes[boxIdx];
+                std::string color = pieceColors[boxIdx % pieceColors.size()];
+                
+                std::vector<std::pair<Board, std::vector<std::vector<std::pair<int, int>>>>> newBoardsWithCoords;
+                size_t prevCount = currentBoardsWithCoords.size();
+                
+                for (const auto& boardWithCoords : currentBoardsWithCoords) {
+                    const Board& currentBoard = boardWithCoords.first;
+                    const std::vector<std::vector<std::pair<int, int>>>& existingCoords = boardWithCoords.second;
+                    
+                    // Try placing the box at every valid position
+                    for (int row = 0; row < currentBoard.getBoardSize(); ++row) {
+                        for (int col = 0; col < currentBoard.getBoardSize(); ++col) {
+                            bool canPlace = true;
+                            for (const auto& coord : box.getBody()) {
+                                int x = row + coord.getX();
+                                int y = col + coord.getY();
+                                if (!currentBoard.isInBounds(x, y) || currentBoard.isCellFilled(x, y)) {
+                                    canPlace = false;
+                                    break;
+                                }
+                            }
+                            if (canPlace) {
+                                Board newBoard = currentBoard;
+                                std::vector<std::pair<int, int>> newPieceCoords;
+                                
+                                for (const auto& coord : box.getBody()) {
+                                    int x = row + coord.getX();
+                                    int y = col + coord.getY();
+                                    newBoard.placeBlock(x, y);
+                                    newPieceCoords.push_back({x, y});
+                                }
+                                
+                                // Copy existing coords and add new piece coords
+                                std::vector<std::vector<std::pair<int, int>>> allCoords = existingCoords;
+                                allCoords.push_back(newPieceCoords);
+                                
+                                newBoardsWithCoords.push_back({newBoard, allCoords});
+                            }
+                        }
+                    }
+                }
+                
+                currentBoardsWithCoords = newBoardsWithCoords;
+                boardsPerStep.push_back(currentBoardsWithCoords.size());
+                
+                // Print step statistics with piece color
+                std::cout << color << "┌─ Step " << (boxIdx + 1) << ": " << box.getName() << PrintUtils::RESET << "\n";
+                std::cout << color << "│" << PrintUtils::RESET << "  Input boards: " << prevCount << "\n";
+                std::cout << color << "│" << PrintUtils::RESET << "  Generated: " << PrintUtils::GREEN << currentBoardsWithCoords.size() << PrintUtils::RESET << " possible boards\n";
+                if (currentBoardsWithCoords.empty()) {
+                    std::cout << color << "│" << PrintUtils::RESET << "  " << PrintUtils::YELLOW << "⚠ No valid placements - stopping" << PrintUtils::RESET << "\n";
+                    break;
+                }
+                std::cout << color << "└─────────────────────────────────" << PrintUtils::RESET << "\n\n";
+            }
+            
+            // Extract just the boards for the return value
+            std::vector<Board> currentBoards;
+            for (const auto& bwc : currentBoardsWithCoords) {
+                currentBoards.push_back(bwc.first);
+            }
+            
+            // Calculate duration
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+            
+            // Calculate scores for all boards and attach piece coordinates
+            std::vector<BoardScore> scores;
+            for (size_t i = 0; i < currentBoardsWithCoords.size(); ++i) {
+                BoardScore bs = calculateBoardScore(currentBoardsWithCoords[i].first, i);
+                bs.pieceCoords = currentBoardsWithCoords[i].second;  // Attach piece coordinates
+                scores.push_back(bs);
+            }
+            
+            // Sort by score (highest first)
+            std::sort(scores.begin(), scores.end(), [](const BoardScore& a, const BoardScore& b) {
+                return a.score > b.score;
+            });
+            
+            // Print summary statistics
+            std::cout << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                         GENERATION SUMMARY                           " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╠══════════════════════════════════════════════════════════════════════╣" << PrintUtils::RESET << "\n";
+            
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::BLUE << "◆ Total Pieces Placed: " << PrintUtils::RESET << boxes.size() << std::string(45 - std::to_string(boxes.size()).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::GREEN << "◆ Total Possible Boards: " << PrintUtils::RESET << currentBoards.size() << std::string(43 - std::to_string(currentBoards.size()).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::GRAY << "⏱ Generation Time: " << PrintUtils::RESET << duration.count() << " ms" << std::string(45 - std::to_string(duration.count()).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            
+            if (!scores.empty()) {
+                // Score statistics
+                int maxScore = scores.front().score;
+                int minScore = scores.back().score;
+                int avgScore = 0;
+                for (const auto& s : scores) avgScore += s.score;
+                avgScore = scores.size() > 0 ? avgScore / static_cast<int>(scores.size()) : 0;
+                
+                std::cout << PrintUtils::CYAN << "╠══════════════════════════════════════════════════════════════════════╣" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                         SCORE STATISTICS                             " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::CYAN << "╠══════════════════════════════════════════════════════════════════════╣" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::GREEN << "▲ Highest Score: " << PrintUtils::RESET << maxScore << std::string(51 - std::to_string(maxScore).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::YELLOW << "● Average Score: " << PrintUtils::RESET << avgScore << std::string(51 - std::to_string(avgScore).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::RED << "▼ Lowest Score: " << PrintUtils::RESET << minScore << std::string(52 - std::to_string(minScore).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            }
+            
+            std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+            
+            // Show top 3 boards with detailed stats and multi-color piece visualization
+            if (!scores.empty()) {
+                size_t topCount = std::min(scores.size(), static_cast<size_t>(3));
+                
+                std::cout << PrintUtils::MAGENTA << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "                      🏆 TOP " << topCount << " HIGHEST SCORING BOARDS 🏆                  " << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::MAGENTA << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                
+                std::string medals[] = {"🥇", "🥈", "🥉"};
+                std::string rankColors[] = {PrintUtils::YELLOW, PrintUtils::GRAY, "\033[38;5;166m"}; // Gold, Silver, Bronze
+                
+                for (size_t i = 0; i < topCount; ++i) {
+                    const BoardScore& bs = scores[i];
+                    std::string rankColor = rankColors[i];
+                    
+                    std::cout << rankColor << "┌─────────────────────────────────────────────────────────────────────┐" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << " " << medals[i] << " " << rankColor << "RANK #" << (i + 1) << PrintUtils::RESET << " (Board Index: " << bs.boardIndex << ")" << std::string(40 - std::to_string(bs.boardIndex).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "├─────────────────────────────────────────────────────────────────────┤" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  " << PrintUtils::GREEN << "★ Score: " << bs.score << PrintUtils::RESET << std::string(58 - std::to_string(bs.score).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  ├─ Empty Cells: " << bs.emptyCells << " / 64" << std::string(43 - std::to_string(bs.emptyCells).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  ├─ Potential Row Clears: " << bs.potentialRowClears << std::string(40 - std::to_string(bs.potentialRowClears).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  ├─ Potential Col Clears: " << bs.potentialColClears << std::string(40 - std::to_string(bs.potentialColClears).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  ├─ Almost Full Rows (6+): " << bs.almostFullRows << std::string(39 - std::to_string(bs.almostFullRows).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  ├─ Almost Full Cols (6+): " << bs.almostFullCols << std::string(39 - std::to_string(bs.almostFullCols).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  └─ Center Control (4x4): " << bs.centerControl << " / 16" << std::string(36 - std::to_string(bs.centerControl).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "├─────────────────────────────────────────────────────────────────────┤" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << " Board Visual (";
+                    std::cout << PrintUtils::RED << "Piece1" << PrintUtils::RESET << ", ";
+                    std::cout << PrintUtils::GREEN << "Piece2" << PrintUtils::RESET << ", ";
+                    std::cout << PrintUtils::YELLOW << "Piece3" << PrintUtils::RESET << ", Original=#):        " << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "└─────────────────────────────────────────────────────────────────────┘" << PrintUtils::RESET << "\n";
+                    
+                    // Print the board with multi-color piece highlighting
+                    printBoardWithMultiPieceHighlight(bs.board, bs.pieceCoords, originalBoard);
+                    std::cout << "\n";
+                }
+            }
+            
+            if (currentBoards.empty()) {
+                std::cout << PrintUtils::YELLOW << "⚠ No valid placements found for the given combination of boxes." << PrintUtils::RESET << "\n\n";
+            }
+            
+            return currentBoards;
+        }
+
+        // Silent version without printing (for internal use)
+        std::vector<Board> GenerateAllPossibleBoardsSilent(const Box& box) {
+            std::vector<Board> possibleBoards;
+            
+            for (int row = 0; row < board.getBoardSize(); ++row) {
+                for (int col = 0; col < board.getBoardSize(); ++col) {
+                    bool canPlace = true;
+                    for (const auto& coord : box.getBody()) {
+                        int x = row + coord.getX();
+                        int y = col + coord.getY();
+                        if (!board.isInBounds(x, y) || board.isCellFilled(x, y)) {
+                            canPlace = false;
+                            break;
+                        }
+                    }
+                    if (canPlace) {
+                        Board newBoard = board;
+                        for (const auto& coord : box.getBody()) {
+                            int x = row + coord.getX();
+                            int y = col + coord.getY();
+                            newBoard.placeBlock(x, y);
+                        }
+                        possibleBoards.push_back(newBoard);
+                    }
+                }
+            }
+            return possibleBoards;
         }
 
         bool useThisBoard(const Board& newBoard) {
@@ -949,14 +1500,14 @@ class BlockBlastGame {
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
             
             // Print detailed statistics with colors
-            std::cout << "\n\033[36m========== BLAST THE BOARD RESULTS ==========\033[0m\n";
+            std::cout << "\n" << PrintUtils::CYAN << "========== BLAST THE BOARD RESULTS ==========" << PrintUtils::RESET << "\n";
             
             if (fullRows.empty() && fullCols.empty()) {
-                std::cout << "\033[33m⚠ No full rows or columns detected.\033[0m\n";
+                std::cout << PrintUtils::YELLOW << "⚠ No full rows or columns detected." << PrintUtils::RESET << "\n";
             } else {
                 // Row clearing info
                 if (!fullRows.empty()) {
-                    std::cout << "\033[32m✓ Rows Cleared: " << info.clearedRows << "\033[0m";
+                    std::cout << PrintUtils::GREEN << "✓ Rows Cleared: " << info.clearedRows << PrintUtils::RESET;
                     std::cout << " → [";
                     for (size_t i = 0; i < fullRows.size(); ++i) {
                         std::cout << "Row " << fullRows[i];
@@ -967,7 +1518,7 @@ class BlockBlastGame {
                 
                 // Column clearing info
                 if (!fullCols.empty()) {
-                    std::cout << "\033[32m✓ Columns Cleared: " << info.clearedCols << "\033[0m";
+                    std::cout << PrintUtils::GREEN << "✓ Columns Cleared: " << info.clearedCols << PrintUtils::RESET;
                     std::cout << " → [";
                     for (size_t i = 0; i < fullCols.size(); ++i) {
                         std::cout << "Col " << fullCols[i];
@@ -978,7 +1529,7 @@ class BlockBlastGame {
                 
                 // Combo info (intersections)
                 if (comboCount > 0) {
-                    std::cout << "\033[35m★ COMBO x" << comboCount << "!\033[0m";
+                    std::cout << PrintUtils::MAGENTA << "★ COMBO x" << comboCount << "!" << PrintUtils::RESET;
                     std::cout << " (Row+Column intersections at: ";
                     for (size_t i = 0; i < comboIntersections.size(); ++i) {
                         std::cout << "(" << comboIntersections[i].first << "," << comboIntersections[i].second << ")";
@@ -988,7 +1539,7 @@ class BlockBlastGame {
                 }
                 
                 // Total cells cleared
-                std::cout << "\033[34m◆ Total Cells Cleared: " << info.totalClearedCells << "\033[0m";
+                std::cout << PrintUtils::BLUE << "◆ Total Cells Cleared: " << info.totalClearedCells << PrintUtils::RESET;
                 
                 // Show overlap calculation if there were combos
                 if (comboCount > 0) {
@@ -1001,48 +1552,10 @@ class BlockBlastGame {
                 std::cout << "\n";
             }
             
-            std::cout << "\033[90m⏱ Duration: " << duration.count() << " μs\033[0m\n";
-            std::cout << "\033[36m==============================================\033[0m\n\n";
+            std::cout << PrintUtils::GRAY << "⏱ Duration: " << duration.count() << " μs" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "==============================================" << PrintUtils::RESET << "\n\n";
             
             return info;
-        }
-
-    private:
-        // Helper method to print board with specific cells highlighted in red
-        void printBoardWithHighlight(const Board& boardToPrint, const std::vector<std::pair<int, int>>& highlightCoords) const {
-            // Print column headers
-            std::cout << "   ";
-            for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
-                std::cout << " " << col << " ";
-            }
-            std::cout << std::endl;
-            
-            // Print board with highlights
-            for (int row = 0; row < boardToPrint.getBoardSize(); ++row) {
-                std::cout << " " << row << " ";
-                for (int col = 0; col < boardToPrint.getBoardSize(); ++col) {
-                    // Check if this coordinate should be highlighted
-                    bool isHighlighted = false;
-                    for (const auto& coord : highlightCoords) {
-                        if (coord.first == row && coord.second == col) {
-                            isHighlighted = true;
-                            break;
-                        }
-                    }
-                    
-                    if (isHighlighted) {
-                        // Red color for newly placed cells
-                        std::cout << "[\033[31m#\033[0m]";
-                    } else if (boardToPrint.isCellFilled(row, col)) {
-                        // Normal color for existing filled cells
-                        std::cout << "[#]";
-                    } else {
-                        // Empty cell
-                        std::cout << "[ ]";
-                    }
-                }
-                std::cout << std::endl;
-            }
         }
 };
 
@@ -1057,30 +1570,76 @@ int main() {
     srand(time(NULL));
 
     Board tempBoard;
+    std::vector<Box> tempBoxes;
+    std::vector<Board> possibleBoards;
     
     BlockBlastGame game;
     game.displayBoard();
     game.getEmptyCellCount();
+    game.placeBoxOnBoard(SquareBox(3), 0, 0);
+    game.displayBoard();
+    game.getEmptyCellCount();
+    game.placeBoxOnBoard(RectangleBox(2,3), 4, 4);
+    game.displayBoard();
+    game.getEmptyCellCount();
 
-    for (int i = 0; i <= 20; ++i) {
+    for (int i = 0; i < 3; ++i) {
+        tempBoxes.push_back(randomShapeInBundle());
+    }
         Box selectedBox = randomShapeInBundle();
         // NotifySelectedBox(selectedBox);
         
-        tempBoard = game.BruteForceAlgorithm(selectedBox);
-        game.useThisBoard(tempBoard);
+        // possibleBoards = game.GenerateAllPossibleBoards(selectedBox);
+        possibleBoards = game.GenerateAllPossibleBoardsByManyPiecesCombination(tempBoxes);
+
+        // game.useThisBoard(tempBoard);
+        game.displayBoard();
+        game.getEmptyCellCount();
+
+    tempBoxes.clear();
+    for (int i = 0; i < 3; ++i) {
+        tempBoxes.push_back(randomShapeInBundle());
+    }
+        selectedBox = randomShapeInBundle();
+        // NotifySelectedBox(selectedBox);
+        
+        // possibleBoards = game.GenerateAllPossibleBoards(selectedBox);
+        possibleBoards = game.GenerateAllPossibleBoardsByManyPiecesCombination(tempBoxes);
+
+        // game.useThisBoard(tempBoard);
         game.displayBoard();
         game.getEmptyCellCount();
         
         // Check and clear any full rows/columns
-        ClearedBoardInfo clearInfo = game.blastTheBoard();
+        // ClearedBoardInfo clearInfo = game.blastTheBoard();
         
         // Show the board after blasting if anything was cleared
-        if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
-            std::cout << "\n[Board After Blasting]" << std::endl;
-            game.displayBoard();
-            game.getEmptyCellCount();
-        }
-    }
+        // if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
+        //     std::cout << "\n[Board After Blasting]" << std::endl;
+        //     game.displayBoard();
+        //     game.getEmptyCellCount();
+        // }
+    // }
+
+    // for (int i = 0; i <= 20; ++i) {
+    //     Box selectedBox = randomShapeInBundle();
+    //     // NotifySelectedBox(selectedBox);
+        
+    //     tempBoard = game.BruteForceAlgorithm(selectedBox);
+    //     game.useThisBoard(tempBoard);
+    //     game.displayBoard();
+    //     game.getEmptyCellCount();
+        
+    //     // Check and clear any full rows/columns
+    //     ClearedBoardInfo clearInfo = game.blastTheBoard();
+        
+    //     // Show the board after blasting if anything was cleared
+    //     if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
+    //         std::cout << "\n[Board After Blasting]" << std::endl;
+    //         game.displayBoard();
+    //         game.getEmptyCellCount();
+    //     }
+    // }
     
     // while (true) {
     //     Box selectedBox = MenuBoxSelection();
