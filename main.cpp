@@ -394,261 +394,423 @@ void printBoxVisualWithColor(const Box& box, int startX, int startY, int boardSi
     }
 }
 
+void printMenuNumber(int number, bool highlighted = false) {
+    if (highlighted) {
+        std::cout << PrintUtils::MAGENTA << "  " << number << "." << PrintUtils::RESET;
+    } else {
+        std::cout << PrintUtils::YELLOW << "  " << number << "." << PrintUtils::RESET;
+    }
+}
+
 Box MenuBoxSelection() {
     system("clear");
     int mainChoice;
     int subChoice;
     
     while (true) {
-        std::cout << "========================================" << std::endl;
-        std::cout << "       BOX SELECTION MENU" << std::endl;
-        std::cout << "========================================" << std::endl;
-        std::cout << "Please select a box type from the following options:" << std::endl;
-        std::cout << "1. SquareBox" << std::endl;
-        std::cout << "2. RectangleBox" << std::endl;
-        std::cout << "3. LShapeBox" << std::endl;
-        std::cout << "4. ConnerBox" << std::endl;
-        std::cout << "5. TShapeBox" << std::endl;
-        std::cout << "6. ZShapeBox" << std::endl;
-        std::cout << "7. DiagonalBox" << std::endl;
-        std::cout << "========================================" << std::endl;
+        std::cout << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+        std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                       📦 BOX SELECTION MENU 📦                        " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+        std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+        std::cout << "Please select a box type from the following options:\n\n";
+        printMenuNumber(1);
+        std::cout << " SquareBox      (1x1, 2x2, 3x3)\n";
+        printMenuNumber(2);
+        std::cout << " RectangleBox   (Lines and blocks)\n";
+        printMenuNumber(3);
+        std::cout << " LShapeBox      (L-shaped pieces)\n";
+        printMenuNumber(4);
+        std::cout << " ConnerBox      (Corner pieces)\n";
+        printMenuNumber(5);
+        std::cout << " TShapeBox      (T-shaped pieces)\n";
+        printMenuNumber(6);
+        std::cout << " ZShapeBox      (Z-shaped pieces)\n";
+        printMenuNumber(7);
+        std::cout << " DiagonalBox    (Diagonal pieces)\n";
+        std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
         std::cout << "Enter your choice (1-7): ";
         std::cin >> mainChoice;
         system("clear");
         
         switch (mainChoice) {
             case 1: {
-                std::cout << "========================================" << std::endl;
-                std::cout << "       SQUARE BOX SELECTION" << std::endl;
-                std::cout << "========================================" << std::endl;
-                std::cout << "Select size for SquareBox:" << std::endl;
-                std::cout << "\n1. Size 1x1" << std::endl;
-                printBoxVisualOnBoard(SquareBox(1), 0, 0, 5);
-                std::cout << "\n2. Size 2x2" << std::endl;
-                printBoxVisualOnBoard(SquareBox(2), 0, 0, 5);
-                std::cout << "\n3. Size 3x3" << std::endl;
-                printBoxVisualOnBoard(SquareBox(3), 0, 0, 5);
-                std::cout << "Enter your choice (1-3): ";
-                std::cin >> subChoice;
-                if (subChoice >= 1 && subChoice <= 3) {
-                    Box selectedBox = SquareBox(subChoice);
-                    return selectedBox;
+                while (true) {
+                    std::cout << PrintUtils::GREEN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "║" << PrintUtils::RESET << "                     ■ SQUARE BOX SELECTION ■                         " << PrintUtils::GREEN << "║" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                    std::cout << "Select size for SquareBox:\n";
+                    std::cout << PrintUtils::RED << "\n  0. ← Go Back to Main Menu" << PrintUtils::RESET << "\n";
+                    std::cout << "\n";
+                    printMenuNumber(1);
+                    std::cout << " Size 1x1" << std::endl;
+                    printBoxVisualWithColor(SquareBox(1), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(2);
+                    std::cout << " Size 2x2" << std::endl;
+                    printBoxVisualWithColor(SquareBox(2), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(3);
+                    std::cout << " Size 3x3" << std::endl;
+                    printBoxVisualWithColor(SquareBox(3), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+                    std::cout << "Enter your choice (0-3): ";
+                    std::cin >> subChoice;
+                    if (subChoice == 0) {
+                        system("clear");
+                        break; // Go back to main menu
+                    }
+                    if (subChoice >= 1 && subChoice <= 3) {
+                        return SquareBox(subChoice);
+                    }
+                    std::cout << PrintUtils::RED << "Invalid choice. Please try again." << PrintUtils::RESET << std::endl;
+                    std::cout << "Press Enter to continue...";
+                    std::cin.ignore();
+                    std::cin.get();
+                    system("clear");
                 }
-                std::cout << "Invalid choice. Please try again." << std::endl;
                 break;
             }
             case 2: {
-                std::cout << "========================================" << std::endl;
-                std::cout << "       RECTANGLE BOX SELECTION" << std::endl;
-                std::cout << "========================================" << std::endl;
-                std::cout << "Select type for RectangleBox:" << std::endl;
-                std::cout << "\n1. LINE 1x2" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(1, 2), 0, 0, 5);
-                std::cout << "\n2. LINE 2x1" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(2, 1), 0, 0, 5);
-                std::cout << "\n3. LINE 1x3" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(1, 3), 0, 0, 5);
-                std::cout << "\n4. LINE 3x1" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(3, 1), 0, 0, 5);
-                std::cout << "\n5. LINE 1x4" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(1, 4), 0, 0, 5);
-                std::cout << "\n6. LINE 4x1" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(4, 1), 0, 0, 5);
-                std::cout << "\n7. LINE 1x5" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(1, 5), 0, 0, 5);
-                std::cout << "\n8. LINE 5x1" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(5, 1), 0, 0, 5);
-                std::cout << "\n9. BLOCK 2x3" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(2, 3), 0, 0, 5);
-                std::cout << "\n10. BLOCK 3x2" << std::endl;
-                printBoxVisualOnBoard(RectangleBox(3, 2), 0, 0, 5);
-                std::cout << "Enter your choice (1-10): ";
-                std::cin >> subChoice;
-                Box selectedBox = SquareBox(1); // Default
-                std::string desc;
-                switch (subChoice) {
-                    case 1: selectedBox = RectangleBox(1, 2); desc = "LINE 1x2"; break;
-                    case 2: selectedBox = RectangleBox(2, 1); desc = "LINE 2x1"; break;
-                    case 3: selectedBox = RectangleBox(1, 3); desc = "LINE 1x3"; break;
-                    case 4: selectedBox = RectangleBox(3, 1); desc = "LINE 3x1"; break;
-                    case 5: selectedBox = RectangleBox(1, 4); desc = "LINE 1x4"; break;
-                    case 6: selectedBox = RectangleBox(4, 1); desc = "LINE 4x1"; break;
-                    case 7: selectedBox = RectangleBox(1, 5); desc = "LINE 1x5"; break;
-                    case 8: selectedBox = RectangleBox(5, 1); desc = "LINE 5x1"; break;
-                    case 9: selectedBox = RectangleBox(2, 3); desc = "BLOCK 2x3"; break;
-                    case 10: selectedBox = RectangleBox(3, 2); desc = "BLOCK 3x2"; break;
-                    default:
-                        std::cout << "Invalid choice. Please try again." << std::endl;
-                        continue;
+                while (true) {
+                    std::cout << PrintUtils::GREEN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "║" << PrintUtils::RESET << "                   ▬ RECTANGLE BOX SELECTION ▬                        " << PrintUtils::GREEN << "║" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                    std::cout << "Select type for RectangleBox:\n";
+                    std::cout << PrintUtils::RED << "\n  0. ← Go Back to Main Menu" << PrintUtils::RESET << "\n";
+                    std::cout << "\n";
+                    printMenuNumber(1);
+                    std::cout << " LINE 1x2" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(1, 2), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(2);
+                    std::cout << " LINE 2x1" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(2, 1), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(3);
+                    std::cout << " LINE 1x3" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(1, 3), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(4);
+                    std::cout << " LINE 3x1" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(3, 1), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(5);
+                    std::cout << " LINE 1x4" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(1, 4), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(6);
+                    std::cout << " LINE 4x1" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(4, 1), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(7);
+                    std::cout << " LINE 1x5" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(1, 5), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(8);
+                    std::cout << " LINE 5x1" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(5, 1), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(9);
+                    std::cout << " BLOCK 2x3" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(2, 3), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(10);
+                    std::cout << " BLOCK 3x2" << std::endl;
+                    printBoxVisualWithColor(RectangleBox(3, 2), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+                    std::cout << "Enter your choice (0-10): ";
+                    std::cin >> subChoice;
+                    if (subChoice == 0) {
+                        system("clear");
+                        break; // Go back to main menu
+                    }
+                    switch (subChoice) {
+                        case 1: return RectangleBox(1, 2);
+                        case 2: return RectangleBox(2, 1);
+                        case 3: return RectangleBox(1, 3);
+                        case 4: return RectangleBox(3, 1);
+                        case 5: return RectangleBox(1, 4);
+                        case 6: return RectangleBox(4, 1);
+                        case 7: return RectangleBox(1, 5);
+                        case 8: return RectangleBox(5, 1);
+                        case 9: return RectangleBox(2, 3);
+                        case 10: return RectangleBox(3, 2);
+                        default:
+                            std::cout << PrintUtils::RED << "Invalid choice. Please try again." << PrintUtils::RESET << std::endl;
+                            std::cout << "Press Enter to continue...";
+                            std::cin.ignore();
+                            std::cin.get();
+                            system("clear");
+                    }
                 }
-                return selectedBox;
+                break;
             }
             case 3: {
-                std::cout << "========================================" << std::endl;
-                std::cout << "       L-SHAPE BOX SELECTION" << std::endl;
-                std::cout << "========================================" << std::endl;
-                std::cout << "Select type for LShapeBox:" << std::endl;
-                std::cout << "\n1. Left L, Rotation 0" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("left", 0), 0, 0, 5);
-                std::cout << "\n2. Left L, Rotation 90" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("left", 90), 0, 0, 5);
-                std::cout << "\n3. Left L, Rotation 180" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("left", 180), 0, 0, 5);
-                std::cout << "\n4. Left L, Rotation 270" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("left", 270), 0, 0, 5);
-                std::cout << "\n5. Right L, Rotation 0" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("right", 0), 0, 0, 5);
-                std::cout << "\n6. Right L, Rotation 90" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("right", 90), 0, 0, 5);
-                std::cout << "\n7. Right L, Rotation 180" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("right", 180), 0, 0, 5);
-                std::cout << "\n8. Right L, Rotation 270" << std::endl;
-                printBoxVisualOnBoard(LShapeBox("right", 270), 0, 0, 5);
-                std::cout << "Enter your choice (1-8): ";
-                std::cin >> subChoice;
-                Box selectedBox = SquareBox(1); // Default
-                std::string desc;
-                switch (subChoice) {
-                    case 1: selectedBox = LShapeBox("left", 0); desc = "Left L, Rotation 0"; break;
-                    case 2: selectedBox = LShapeBox("left", 90); desc = "Left L, Rotation 90"; break;
-                    case 3: selectedBox = LShapeBox("left", 180); desc = "Left L, Rotation 180"; break;
-                    case 4: selectedBox = LShapeBox("left", 270); desc = "Left L, Rotation 270"; break;
-                    case 5: selectedBox = LShapeBox("right", 0); desc = "Right L, Rotation 0"; break;
-                    case 6: selectedBox = LShapeBox("right", 90); desc = "Right L, Rotation 90"; break;
-                    case 7: selectedBox = LShapeBox("right", 180); desc = "Right L, Rotation 180"; break;
-                    case 8: selectedBox = LShapeBox("right", 270); desc = "Right L, Rotation 270"; break;
-                    default:
-                        std::cout << "Invalid choice. Please try again." << std::endl;
-                        continue;
+                while (true) {
+                    std::cout << PrintUtils::GREEN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "║" << PrintUtils::RESET << "                     ⌐ L-SHAPE BOX SELECTION ⌐                        " << PrintUtils::GREEN << "║" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                    std::cout << "Select type for LShapeBox:\n";
+                    std::cout << PrintUtils::RED << "\n  0. ← Go Back to Main Menu" << PrintUtils::RESET << "\n";
+                    std::cout << "\n";
+                    printMenuNumber(1);
+                    std::cout << " Left L, Rotation 0" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("left", 0), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(2);
+                    std::cout << " Left L, Rotation 90" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("left", 90), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(3);
+                    std::cout << " Left L, Rotation 180" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("left", 180), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(4);
+                    std::cout << " Left L, Rotation 270" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("left", 270), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(5);
+                    std::cout << " Right L, Rotation 0" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("right", 0), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(6);
+                    std::cout << " Right L, Rotation 90" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("right", 90), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(7);
+                    std::cout << " Right L, Rotation 180" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("right", 180), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(8);
+                    std::cout << " Right L, Rotation 270" << std::endl;
+                    printBoxVisualWithColor(LShapeBox("right", 270), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+                    std::cout << "Enter your choice (0-8): ";
+                    std::cin >> subChoice;
+                    if (subChoice == 0) {
+                        system("clear");
+                        break; // Go back to main menu
+                    }
+                    switch (subChoice) {
+                        case 1: return LShapeBox("left", 0);
+                        case 2: return LShapeBox("left", 90);
+                        case 3: return LShapeBox("left", 180);
+                        case 4: return LShapeBox("left", 270);
+                        case 5: return LShapeBox("right", 0);
+                        case 6: return LShapeBox("right", 90);
+                        case 7: return LShapeBox("right", 180);
+                        case 8: return LShapeBox("right", 270);
+                        default:
+                            std::cout << PrintUtils::RED << "Invalid choice. Please try again." << PrintUtils::RESET << std::endl;
+                            std::cout << "Press Enter to continue...";
+                            std::cin.ignore();
+                            std::cin.get();
+                            system("clear");
+                    }
                 }
-                return selectedBox;
+                break;
             }
             case 4: {
-                std::cout << "========================================" << std::endl;
-                std::cout << "       CORNER BOX SELECTION" << std::endl;
-                std::cout << "========================================" << std::endl;
-                std::cout << "Select type for ConnerBox:" << std::endl;
-                std::cout << "\n1. Size 2, Rotation 0" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(2, 0), 0, 0, 5);
-                std::cout << "\n2. Size 2, Rotation 90" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(2, 90), 0, 0, 5);
-                std::cout << "\n3. Size 2, Rotation 180" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(2, 180), 0, 0, 5);
-                std::cout << "\n4. Size 2, Rotation 270" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(2, 270), 0, 0, 5);
-                std::cout << "\n5. Size 3, Rotation 0" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(3, 0), 0, 0, 5);
-                std::cout << "\n6. Size 3, Rotation 90" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(3, 90), 0, 0, 5);
-                std::cout << "\n7. Size 3, Rotation 180" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(3, 180), 0, 0, 5);
-                std::cout << "\n8. Size 3, Rotation 270" << std::endl;
-                printBoxVisualOnBoard(ConnerBox(3, 270), 0, 0, 5);
-                std::cout << "Enter your choice (1-8): ";
-                std::cin >> subChoice;
-                Box selectedBox = SquareBox(1); // Default
-                std::string desc;
-                switch (subChoice) {
-                    case 1: selectedBox = ConnerBox(2, 0); desc = "Size 2, Rotation 0"; break;
-                    case 2: selectedBox = ConnerBox(2, 90); desc = "Size 2, Rotation 90"; break;
-                    case 3: selectedBox = ConnerBox(2, 180); desc = "Size 2, Rotation 180"; break;
-                    case 4: selectedBox = ConnerBox(2, 270); desc = "Size 2, Rotation 270"; break;
-                    case 5: selectedBox = ConnerBox(3, 0); desc = "Size 3, Rotation 0"; break;
-                    case 6: selectedBox = ConnerBox(3, 90); desc = "Size 3, Rotation 90"; break;
-                    case 7: selectedBox = ConnerBox(3, 180); desc = "Size 3, Rotation 180"; break;
-                    case 8: selectedBox = ConnerBox(3, 270); desc = "Size 3, Rotation 270"; break;
-                    default:
-                        std::cout << "Invalid choice. Please try again." << std::endl;
-                        continue;
+                while (true) {
+                    std::cout << PrintUtils::GREEN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "║" << PrintUtils::RESET << "                     ┌ CORNER BOX SELECTION ┌                         " << PrintUtils::GREEN << "║" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                    std::cout << "Select type for ConnerBox:\n";
+                    std::cout << PrintUtils::RED << "\n  0. ← Go Back to Main Menu" << PrintUtils::RESET << "\n";
+                    std::cout << "\n";
+                    printMenuNumber(1);
+                    std::cout << " Size 2, Rotation 0" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(2, 0), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(2);
+                    std::cout << " Size 2, Rotation 90" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(2, 90), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(3);
+                    std::cout << " Size 2, Rotation 180" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(2, 180), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(4);
+                    std::cout << " Size 2, Rotation 270" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(2, 270), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(5);
+                    std::cout << " Size 3, Rotation 0" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(3, 0), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(6);
+                    std::cout << " Size 3, Rotation 90" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(3, 90), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(7);
+                    std::cout << " Size 3, Rotation 180" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(3, 180), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(8);
+                    std::cout << " Size 3, Rotation 270" << std::endl;
+                    printBoxVisualWithColor(ConnerBox(3, 270), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+                    std::cout << "Enter your choice (0-8): ";
+                    std::cin >> subChoice;
+                    if (subChoice == 0) {
+                        system("clear");
+                        break; // Go back to main menu
+                    }
+                    switch (subChoice) {
+                        case 1: return ConnerBox(2, 0);
+                        case 2: return ConnerBox(2, 90);
+                        case 3: return ConnerBox(2, 180);
+                        case 4: return ConnerBox(2, 270);
+                        case 5: return ConnerBox(3, 0);
+                        case 6: return ConnerBox(3, 90);
+                        case 7: return ConnerBox(3, 180);
+                        case 8: return ConnerBox(3, 270);
+                        default:
+                            std::cout << PrintUtils::RED << "Invalid choice. Please try again." << PrintUtils::RESET << std::endl;
+                            std::cout << "Press Enter to continue...";
+                            std::cin.ignore();
+                            std::cin.get();
+                            system("clear");
+                    }
                 }
-                return selectedBox;
+                break;
             }
             case 5: {
-                std::cout << "========================================" << std::endl;
-                std::cout << "       T-SHAPE BOX SELECTION" << std::endl;
-                std::cout << "========================================" << std::endl;
-                std::cout << "Select rotation for TShapeBox:" << std::endl;
-                std::cout << "\n1. Rotation 0" << std::endl;
-                printBoxVisualOnBoard(TShapeBox(0), 0, 0, 5);
-                std::cout << "\n2. Rotation 90" << std::endl;
-                printBoxVisualOnBoard(TShapeBox(90), 0, 0, 5);
-                std::cout << "\n3. Rotation 180" << std::endl;
-                printBoxVisualOnBoard(TShapeBox(180), 0, 0, 5);
-                std::cout << "\n4. Rotation 270" << std::endl;
-                printBoxVisualOnBoard(TShapeBox(270), 0, 0, 5);
-                std::cout << "Enter your choice (1-4): ";
-                std::cin >> subChoice;
-                Box selectedBox = SquareBox(1); // Default
-                std::string desc;
-                switch (subChoice) {
-                    case 1: selectedBox = TShapeBox(0); desc = "Rotation 0"; break;
-                    case 2: selectedBox = TShapeBox(90); desc = "Rotation 90"; break;
-                    case 3: selectedBox = TShapeBox(180); desc = "Rotation 180"; break;
-                    case 4: selectedBox = TShapeBox(270); desc = "Rotation 270"; break;
-                    default:
-                        std::cout << "Invalid choice. Please try again." << std::endl;
-                        continue;
+                while (true) {
+                    std::cout << PrintUtils::GREEN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "║" << PrintUtils::RESET << "                     ┬ T-SHAPE BOX SELECTION ┬                        " << PrintUtils::GREEN << "║" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                    std::cout << "Select rotation for TShapeBox:\n";
+                    std::cout << PrintUtils::RED << "\n  0. ← Go Back to Main Menu" << PrintUtils::RESET << "\n";
+                    std::cout << "\n";
+                    printMenuNumber(1);
+                    std::cout << " Rotation 0" << std::endl;
+                    printBoxVisualWithColor(TShapeBox(0), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(2);
+                    std::cout << " Rotation 90" << std::endl;
+                    printBoxVisualWithColor(TShapeBox(90), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(3);
+                    std::cout << " Rotation 180" << std::endl;
+                    printBoxVisualWithColor(TShapeBox(180), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(4);
+                    std::cout << " Rotation 270" << std::endl;
+                    printBoxVisualWithColor(TShapeBox(270), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+                    std::cout << "Enter your choice (0-4): ";
+                    std::cin >> subChoice;
+                    if (subChoice == 0) {
+                        system("clear");
+                        break; // Go back to main menu
+                    }
+                    switch (subChoice) {
+                        case 1: return TShapeBox(0);
+                        case 2: return TShapeBox(90);
+                        case 3: return TShapeBox(180);
+                        case 4: return TShapeBox(270);
+                        default:
+                            std::cout << PrintUtils::RED << "Invalid choice. Please try again." << PrintUtils::RESET << std::endl;
+                            std::cout << "Press Enter to continue...";
+                            std::cin.ignore();
+                            std::cin.get();
+                            system("clear");
+                    }
                 }
-                return selectedBox;
+                break;
             }
             case 6: {
-                std::cout << "========================================" << std::endl;
-                std::cout << "       Z-SHAPE BOX SELECTION" << std::endl;
-                std::cout << "========================================" << std::endl;
-                std::cout << "Select type for ZShapeBox:" << std::endl;
-                std::cout << "\n1. Left Z, Horizontal (0/180)" << std::endl;
-                printBoxVisualOnBoard(ZShapeBox("left", 0), 0, 0, 5);
-                std::cout << "\n2. Left Z, Vertical (90/270)" << std::endl;
-                printBoxVisualOnBoard(ZShapeBox("left", 90), 0, 0, 5);
-                std::cout << "\n3. Right Z, Horizontal (0/180)" << std::endl;
-                printBoxVisualOnBoard(ZShapeBox("right", 0), 0, 0, 5);
-                std::cout << "\n4. Right Z, Vertical (90/270)" << std::endl;
-                printBoxVisualOnBoard(ZShapeBox("right", 90), 0, 0, 5);
-                std::cout << "Enter your choice (1-4): ";
-                std::cin >> subChoice;
-                Box selectedBox = SquareBox(1); // Default
-                std::string desc;
-                switch (subChoice) {
-                    case 1: selectedBox = ZShapeBox("left", 0); desc = "Left Z, Horizontal"; break;
-                    case 2: selectedBox = ZShapeBox("left", 90); desc = "Left Z, Vertical"; break;
-                    case 3: selectedBox = ZShapeBox("right", 0); desc = "Right Z, Horizontal"; break;
-                    case 4: selectedBox = ZShapeBox("right", 90); desc = "Right Z, Vertical"; break;
-                    default:
-                        std::cout << "Invalid choice. Please try again." << std::endl;
-                        continue;
+                while (true) {
+                    std::cout << PrintUtils::GREEN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "║" << PrintUtils::RESET << "                     ⌐ Z-SHAPE BOX SELECTION ⌐                        " << PrintUtils::GREEN << "║" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                    std::cout << "Select type for ZShapeBox:\n";
+                    std::cout << PrintUtils::RED << "\n  0. ← Go Back to Main Menu" << PrintUtils::RESET << "\n";
+                    std::cout << "\n";
+                    printMenuNumber(1);
+                    std::cout << " Left Z, Horizontal (0/180)" << std::endl;
+                    printBoxVisualWithColor(ZShapeBox("left", 0), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(2);
+                    std::cout << " Left Z, Vertical (90/270)" << std::endl;
+                    printBoxVisualWithColor(ZShapeBox("left", 90), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(3);
+                    std::cout << " Right Z, Horizontal (0/180)" << std::endl;
+                    printBoxVisualWithColor(ZShapeBox("right", 0), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(4);
+                    std::cout << " Right Z, Vertical (90/270)" << std::endl;
+                    printBoxVisualWithColor(ZShapeBox("right", 90), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+                    std::cout << "Enter your choice (0-4): ";
+                    std::cin >> subChoice;
+                    if (subChoice == 0) {
+                        system("clear");
+                        break; // Go back to main menu
+                    }
+                    switch (subChoice) {
+                        case 1: return ZShapeBox("left", 0);
+                        case 2: return ZShapeBox("left", 90);
+                        case 3: return ZShapeBox("right", 0);
+                        case 4: return ZShapeBox("right", 90);
+                        default:
+                            std::cout << PrintUtils::RED << "Invalid choice. Please try again." << PrintUtils::RESET << std::endl;
+                            std::cout << "Press Enter to continue...";
+                            std::cin.ignore();
+                            std::cin.get();
+                            system("clear");
+                    }
                 }
-                return selectedBox;
+                break;
             }
             case 7: {
-                std::cout << "========================================" << std::endl;
-                std::cout << "       DIAGONAL BOX SELECTION" << std::endl;
-                std::cout << "========================================" << std::endl;
-                std::cout << "Select type for DiagonalBox:" << std::endl;
-                std::cout << "\n1. Left Diagonal, Size 2" << std::endl;
-                printBoxVisualOnBoard(DiagonalBox("left", 2), 0, 0, 5);
-                std::cout << "\n2. Right Diagonal, Size 2" << std::endl;
-                printBoxVisualOnBoard(DiagonalBox("right", 2), 0, 0, 5);
-                std::cout << "\n3. Left Diagonal, Size 3" << std::endl;
-                printBoxVisualOnBoard(DiagonalBox("left", 3), 0, 0, 5);
-                std::cout << "\n4. Right Diagonal, Size 3" << std::endl;
-                printBoxVisualOnBoard(DiagonalBox("right", 3), 0, 0, 5);
-                std::cout << "Enter your choice (1-4): ";
-                std::cin >> subChoice;
-                Box selectedBox = SquareBox(1); // Default
-                std::string desc;
-                switch (subChoice) {
-                    case 1: selectedBox = DiagonalBox("left", 2); desc = "Left Diagonal, Size 2"; break;
-                    case 2: selectedBox = DiagonalBox("right", 2); desc = "Right Diagonal, Size 2"; break;
-                    case 3: selectedBox = DiagonalBox("left", 3); desc = "Left Diagonal, Size 3"; break;
-                    case 4: selectedBox = DiagonalBox("right", 3); desc = "Right Diagonal, Size 3"; break;
-                    default:
-                        std::cout << "Invalid choice. Please try again." << std::endl;
-                        continue;
+                while (true) {
+                    std::cout << PrintUtils::GREEN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "║" << PrintUtils::RESET << "                     ⟋ DIAGONAL BOX SELECTION ⟋                        " << PrintUtils::GREEN << "║" << PrintUtils::RESET << "\n";
+                    std::cout << PrintUtils::GREEN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                    std::cout << "Select type for DiagonalBox:\n";
+                    std::cout << PrintUtils::RED << "\n  0. ← Go Back to Main Menu" << PrintUtils::RESET << "\n";
+                    std::cout << "\n";
+                    printMenuNumber(1);
+                    std::cout << " Left Diagonal, Size 2" << std::endl;
+                    printBoxVisualWithColor(DiagonalBox("left", 2), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(2);
+                    std::cout << " Right Diagonal, Size 2" << std::endl;
+                    printBoxVisualWithColor(DiagonalBox("right", 2), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(3);
+                    std::cout << " Left Diagonal, Size 3" << std::endl;
+                    printBoxVisualWithColor(DiagonalBox("left", 3), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n";
+                    printMenuNumber(4);
+                    std::cout << " Right Diagonal, Size 3" << std::endl;
+                    printBoxVisualWithColor(DiagonalBox("right", 3), 0, 0, 5, PrintUtils::CYAN);
+                    std::cout << "\n" << PrintUtils::GRAY << "─────────────────────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+                    std::cout << "Enter your choice (0-4): ";
+                    std::cin >> subChoice;
+                    if (subChoice == 0) {
+                        system("clear");
+                        break; // Go back to main menu
+                    }
+                    switch (subChoice) {
+                        case 1: return DiagonalBox("left", 2);
+                        case 2: return DiagonalBox("right", 2);
+                        case 3: return DiagonalBox("left", 3);
+                        case 4: return DiagonalBox("right", 3);
+                        default:
+                            std::cout << PrintUtils::RED << "Invalid choice. Please try again." << PrintUtils::RESET << std::endl;
+                            std::cout << "Press Enter to continue...";
+                            std::cin.ignore();
+                            std::cin.get();
+                            system("clear");
+                    }
                 }
-                return selectedBox;
+                break;
             }
             default:
-                std::cout << "Invalid choice. Please enter a number between 1 and 7." << std::endl;
+                std::cout << PrintUtils::RED << "Invalid choice. Please enter a number between 1 and 7." << PrintUtils::RESET << std::endl;
                 std::cout << "Press Enter to continue...";
                 std::cin.ignore();
                 std::cin.get();
@@ -933,6 +1095,30 @@ void printBoardWithMultiPieceHighlight(const Board& boardToPrint,
     std::cout << "[#]=Original" << PrintUtils::RESET << "\n";
 }
 
+// Struct to hold information about a single placement step
+struct PlacementStep {
+    int pieceIndex;                              // Which piece (index in original list)
+    std::pair<int, int> position;                // Where it was placed (row, col)
+    std::vector<std::pair<int, int>> pieceCoords; // Coordinates of piece cells
+    int clearedRows;                             // Rows cleared after this placement
+    int clearedCols;                             // Cols cleared after this placement
+    int cellsCleared;                            // Total cells cleared after this placement
+    
+    PlacementStep() : pieceIndex(0), position({0, 0}), clearedRows(0), clearedCols(0), cellsCleared(0) {}
+};
+
+// Struct to hold a complete placement sequence (all 3 pieces with blasting)
+struct PlacementSequence {
+    Board finalBoard;                            // Board state after all placements and blasts
+    std::vector<PlacementStep> steps;            // Each placement step
+    std::vector<int> pieceOrder;                 // Order of pieces placed (permutation)
+    int totalCellsCleared;                       // Total cells cleared across all blasts
+    int totalLinesCleared;                       // Total rows + cols cleared
+    int score;                                   // Final calculated score
+    
+    PlacementSequence() : totalCellsCleared(0), totalLinesCleared(0), score(0) {}
+};
+
 // Struct to hold board scoring information for strategy evaluation
 struct BoardScore {
     Board board;
@@ -944,11 +1130,16 @@ struct BoardScore {
     int almostFullCols;          // Columns with 6+ filled cells
     int centerControl;           // Cells filled in center 4x4 area
     int edgeSpread;              // How spread out pieces are on edges
+    int totalCellsCleared;       // NEW: Total cells cleared during placement sequence
+    int totalLinesCleared;       // NEW: Total lines cleared during placement sequence
     size_t boardIndex;           // Original index for reference
     std::vector<std::vector<std::pair<int, int>>> pieceCoords;  // Coords for each piece placement
+    std::vector<int> pieceOrder;                                 // NEW: Order pieces were placed
+    std::vector<std::pair<int, int>> piecePositions;            // NEW: Positions for each piece
     
     BoardScore() : score(0), emptyCells(0), potentialRowClears(0), potentialColClears(0),
-                   almostFullRows(0), almostFullCols(0), centerControl(0), edgeSpread(0), boardIndex(0) {}
+                   almostFullRows(0), almostFullCols(0), centerControl(0), edgeSpread(0),
+                   totalCellsCleared(0), totalLinesCleared(0), boardIndex(0) {}
 };
 
 // Function to calculate board score based on multiple strategic factors
@@ -1025,6 +1216,71 @@ struct ClearedBoardInfo {
     
     ClearedBoardInfo() : clearedRows(0), clearedCols(0), totalClearedCells(0), comboCount(0) {}
 };
+
+// Static helper function to blast a board silently (without output) - used for simulation
+ClearedBoardInfo blastBoardSilent(Board& board) {
+    ClearedBoardInfo info;
+    info.clearedBoard = board;
+    
+    const int boardSize = board.getBoardSize();
+    std::vector<int> fullRows;
+    std::vector<int> fullCols;
+    
+    // Detect all full rows
+    for (int row = 0; row < boardSize; ++row) {
+        bool isFull = true;
+        for (int col = 0; col < boardSize; ++col) {
+            if (!board.isCellFilled(row, col)) {
+                isFull = false;
+                break;
+            }
+        }
+        if (isFull) fullRows.push_back(row);
+    }
+    
+    // Detect all full columns
+    for (int col = 0; col < boardSize; ++col) {
+        bool isFull = true;
+        for (int row = 0; row < boardSize; ++row) {
+            if (!board.isCellFilled(row, col)) {
+                isFull = false;
+                break;
+            }
+        }
+        if (isFull) fullCols.push_back(col);
+    }
+    
+    // Calculate combos
+    int comboCount = fullRows.size() * fullCols.size();
+    
+    // Track all cells to be cleared
+    std::set<std::pair<int, int>> cellsToClear;
+    for (int row : fullRows) {
+        for (int col = 0; col < boardSize; ++col) {
+            cellsToClear.insert({row, col});
+        }
+    }
+    for (int col : fullCols) {
+        for (int row = 0; row < boardSize; ++row) {
+            cellsToClear.insert({row, col});
+        }
+    }
+    
+    // Clear all detected cells
+    for (const auto& cell : cellsToClear) {
+        board.removeBlock(cell.first, cell.second);
+    }
+    
+    info.clearedRows = static_cast<int>(fullRows.size());
+    info.clearedCols = static_cast<int>(fullCols.size());
+    info.totalClearedCells = static_cast<int>(cellsToClear.size());
+    info.comboCount = comboCount;
+    info.clearedRowIndices = fullRows;
+    info.clearedColIndices = fullCols;
+    info.clearedBoard = board;
+    
+    return info;
+}
 
 class BlockBlastGame {
     private:
@@ -1382,6 +1638,141 @@ class BlockBlastGame {
             return currentBoards;
         }
 
+        // Method that returns the top 3 BoardScore objects for user selection
+        std::vector<BoardScore> GetTop3BoardsWithScores(const std::vector<Box>& boxes) {
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
+            // Color palette for different pieces
+            std::vector<std::string> pieceColors = {
+                PrintUtils::RED, PrintUtils::GREEN, PrintUtils::YELLOW,
+                PrintUtils::BLUE, PrintUtils::MAGENTA, PrintUtils::CYAN
+            };
+            
+            // Store the original board for color reference
+            Board originalBoard = board;
+            
+            // Track boards and their piece coordinates together
+            std::vector<std::pair<Board, std::vector<std::vector<std::pair<int, int>>>>> currentBoardsWithCoords;
+            currentBoardsWithCoords.push_back({board, {}});
+            
+            std::cout << "\n" << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "              ANALYZING ALL POSSIBLE PLACEMENTS...                    " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+            
+            // Print pieces being placed
+            std::cout << PrintUtils::GRAY << "Pieces to place: " << PrintUtils::RESET;
+            for (size_t i = 0; i < boxes.size(); ++i) {
+                std::string color = pieceColors[i % pieceColors.size()];
+                std::cout << color << "[" << (i+1) << "] " << boxes[i].getName() << PrintUtils::RESET;
+                if (i < boxes.size() - 1) std::cout << " → ";
+            }
+            std::cout << "\n\n";
+            
+            // Generate boards for each piece sequentially
+            for (size_t boxIdx = 0; boxIdx < boxes.size(); ++boxIdx) {
+                const auto& box = boxes[boxIdx];
+                std::string color = pieceColors[boxIdx % pieceColors.size()];
+                
+                std::vector<std::pair<Board, std::vector<std::vector<std::pair<int, int>>>>> newBoardsWithCoords;
+                size_t prevCount = currentBoardsWithCoords.size();
+                
+                for (const auto& boardWithCoords : currentBoardsWithCoords) {
+                    const Board& currentBoard = boardWithCoords.first;
+                    const std::vector<std::vector<std::pair<int, int>>>& existingCoords = boardWithCoords.second;
+                    
+                    for (int row = 0; row < currentBoard.getBoardSize(); ++row) {
+                        for (int col = 0; col < currentBoard.getBoardSize(); ++col) {
+                            bool canPlace = true;
+                            for (const auto& coord : box.getBody()) {
+                                int x = row + coord.getX();
+                                int y = col + coord.getY();
+                                if (!currentBoard.isInBounds(x, y) || currentBoard.isCellFilled(x, y)) {
+                                    canPlace = false;
+                                    break;
+                                }
+                            }
+                            if (canPlace) {
+                                Board newBoard = currentBoard;
+                                std::vector<std::pair<int, int>> newPieceCoords;
+                                
+                                for (const auto& coord : box.getBody()) {
+                                    int x = row + coord.getX();
+                                    int y = col + coord.getY();
+                                    newBoard.placeBlock(x, y);
+                                    newPieceCoords.push_back({x, y});
+                                }
+                                
+                                std::vector<std::vector<std::pair<int, int>>> allCoords = existingCoords;
+                                allCoords.push_back(newPieceCoords);
+                                newBoardsWithCoords.push_back({newBoard, allCoords});
+                            }
+                        }
+                    }
+                }
+                
+                currentBoardsWithCoords = newBoardsWithCoords;
+                
+                std::cout << color << "Step " << (boxIdx + 1) << ": " << box.getName() << PrintUtils::RESET;
+                std::cout << " → " << PrintUtils::GREEN << currentBoardsWithCoords.size() << PrintUtils::RESET << " boards\n";
+                
+                if (currentBoardsWithCoords.empty()) {
+                    std::cout << PrintUtils::YELLOW << "⚠ No valid placements found!" << PrintUtils::RESET << "\n";
+                    return {};
+                }
+            }
+            
+            // Calculate duration
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+            
+            // Calculate scores for all boards
+            std::vector<BoardScore> scores;
+            for (size_t i = 0; i < currentBoardsWithCoords.size(); ++i) {
+                BoardScore bs = calculateBoardScore(currentBoardsWithCoords[i].first, i);
+                bs.pieceCoords = currentBoardsWithCoords[i].second;
+                scores.push_back(bs);
+            }
+            
+            // Sort by score (highest first)
+            std::sort(scores.begin(), scores.end(), [](const BoardScore& a, const BoardScore& b) {
+                return a.score > b.score;
+            });
+            
+            std::cout << "\n" << PrintUtils::GRAY << "⏱ Analysis Time: " << duration.count() << " ms | Total Combinations: " << scores.size() << PrintUtils::RESET << "\n\n";
+            
+            // Return top 3 (or less if not enough)
+            size_t topCount = std::min(scores.size(), static_cast<size_t>(3));
+            std::vector<BoardScore> top3(scores.begin(), scores.begin() + topCount);
+            
+            // Display top 3 for user selection
+            if (!top3.empty()) {
+                std::cout << PrintUtils::MAGENTA << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "                  🏆 TOP " << topCount << " RECOMMENDED PLACEMENTS 🏆                   " << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::MAGENTA << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                
+                std::string medals[] = {"🥇", "🥈", "🥉"};
+                std::string rankColors[] = {PrintUtils::YELLOW, PrintUtils::GRAY, "\033[38;5;166m"};
+                
+                for (size_t i = 0; i < topCount; ++i) {
+                    const BoardScore& bs = top3[i];
+                    std::string rankColor = rankColors[i];
+                    
+                    std::cout << rankColor << "┌─────────────────────────────────────────────────────────────────────┐" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << " " << medals[i] << " " << rankColor << "OPTION " << (i + 1) << PrintUtils::RESET << " - Score: " << PrintUtils::GREEN << bs.score << PrintUtils::RESET << std::string(44 - std::to_string(bs.score).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "├─────────────────────────────────────────────────────────────────────┤" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  Empty: " << bs.emptyCells << "/64 | Rows to clear: " << bs.potentialRowClears << " | Cols to clear: " << bs.potentialColClears << std::string(15, ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "├─────────────────────────────────────────────────────────────────────┤" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << " " << PrintUtils::RED << "■" << PrintUtils::RESET << "=Piece1 " << PrintUtils::GREEN << "■" << PrintUtils::RESET << "=Piece2 " << PrintUtils::YELLOW << "■" << PrintUtils::RESET << "=Piece3 " << "[#]=Original                  " << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "└─────────────────────────────────────────────────────────────────────┘" << PrintUtils::RESET << "\n";
+                    
+                    printBoardWithMultiPieceHighlight(bs.board, bs.pieceCoords, originalBoard);
+                    std::cout << "\n";
+                }
+            }
+            
+            return top3;
+        }
+
         // Silent version without printing (for internal use)
         std::vector<Board> GenerateAllPossibleBoardsSilent(const Box& box) {
             std::vector<Board> possibleBoards;
@@ -1409,6 +1800,309 @@ class BlockBlastGame {
                 }
             }
             return possibleBoards;
+        }
+
+        // NEW: Generate all placement sequences with blasting after each piece
+        // This considers all permutations and blasts after each placement
+        std::vector<PlacementSequence> GenerateAllPlacementsWithBlasting(const std::vector<Box>& boxes) {
+            std::vector<PlacementSequence> allSequences;
+            
+            if (boxes.empty()) return allSequences;
+            
+            // Generate all permutations of piece indices
+            std::vector<int> indices;
+            for (size_t i = 0; i < boxes.size(); ++i) {
+                indices.push_back(static_cast<int>(i));
+            }
+            
+            // Sort indices to prepare for permutation generation
+            std::sort(indices.begin(), indices.end());
+            
+            do {
+                // For this permutation, generate all possible placement sequences
+                // Start with the current board state
+                std::vector<PlacementSequence> currentSequences;
+                
+                // Initialize with empty sequence
+                PlacementSequence initial;
+                initial.finalBoard = board;
+                initial.pieceOrder = indices;
+                initial.totalCellsCleared = 0;
+                initial.totalLinesCleared = 0;
+                currentSequences.push_back(initial);
+                
+                // Process each piece in the permutation order
+                for (int pieceIdx : indices) {
+                    const Box& currentBox = boxes[pieceIdx];
+                    std::vector<PlacementSequence> newSequences;
+                    
+                    for (const PlacementSequence& seq : currentSequences) {
+                        // Try placing the piece at every valid position on the current board
+                        for (int row = 0; row < seq.finalBoard.getBoardSize(); ++row) {
+                            for (int col = 0; col < seq.finalBoard.getBoardSize(); ++col) {
+                                // Check if piece can be placed
+                                bool canPlace = true;
+                                for (const auto& coord : currentBox.getBody()) {
+                                    int x = row + coord.getX();
+                                    int y = col + coord.getY();
+                                    if (!seq.finalBoard.isInBounds(x, y) || seq.finalBoard.isCellFilled(x, y)) {
+                                        canPlace = false;
+                                        break;
+                                    }
+                                }
+                                
+                                if (canPlace) {
+                                    // Create new sequence based on current
+                                    PlacementSequence newSeq = seq;
+                                    
+                                    // Place the piece
+                                    PlacementStep step;
+                                    step.pieceIndex = pieceIdx;
+                                    step.position = {row, col};
+                                    
+                                    for (const auto& coord : currentBox.getBody()) {
+                                        int x = row + coord.getX();
+                                        int y = col + coord.getY();
+                                        newSeq.finalBoard.placeBlock(x, y);
+                                        step.pieceCoords.push_back({x, y});
+                                    }
+                                    
+                                    // BLAST the board after placement
+                                    ClearedBoardInfo blastResult = blastBoardSilent(newSeq.finalBoard);
+                                    
+                                    // Record blast results in the step
+                                    step.clearedRows = blastResult.clearedRows;
+                                    step.clearedCols = blastResult.clearedCols;
+                                    step.cellsCleared = blastResult.totalClearedCells;
+                                    
+                                    // Accumulate totals
+                                    newSeq.totalCellsCleared += blastResult.totalClearedCells;
+                                    newSeq.totalLinesCleared += blastResult.clearedRows + blastResult.clearedCols;
+                                    
+                                    // Add step to sequence
+                                    newSeq.steps.push_back(step);
+                                    
+                                    newSequences.push_back(newSeq);
+                                }
+                            }
+                        }
+                    }
+                    
+                    currentSequences = newSequences;
+                    
+                    // Early termination if no valid placements
+                    if (currentSequences.empty()) break;
+                }
+                
+                // Add all completed sequences from this permutation
+                for (auto& seq : currentSequences) {
+                    allSequences.push_back(seq);
+                }
+                
+            } while (std::next_permutation(indices.begin(), indices.end()));
+            
+            return allSequences;
+        }
+        
+        // Calculate score for a PlacementSequence
+        BoardScore calculateSequenceScore(const PlacementSequence& seq, size_t index, const std::vector<Box>& boxes) {
+            BoardScore bs;
+            bs.board = seq.finalBoard;
+            bs.boardIndex = index;
+            bs.totalCellsCleared = seq.totalCellsCleared;
+            bs.totalLinesCleared = seq.totalLinesCleared;
+            bs.pieceOrder = seq.pieceOrder;
+            
+            // Extract piece positions and coords from steps
+            for (const auto& step : seq.steps) {
+                bs.piecePositions.push_back(step.position);
+                bs.pieceCoords.push_back(step.pieceCoords);
+            }
+            
+            const int boardSize = seq.finalBoard.getBoardSize();
+            bs.emptyCells = seq.finalBoard.getEmptyCellCount();
+            
+            // Check each row for potential future clears
+            for (int row = 0; row < boardSize; ++row) {
+                int filledCount = 0;
+                for (int col = 0; col < boardSize; ++col) {
+                    if (seq.finalBoard.isCellFilled(row, col)) filledCount++;
+                }
+                if (filledCount == boardSize) bs.potentialRowClears++;
+                else if (filledCount >= 7) bs.potentialRowClears++;
+                else if (filledCount >= 6) bs.almostFullRows++;
+            }
+            
+            // Check each column for potential future clears
+            for (int col = 0; col < boardSize; ++col) {
+                int filledCount = 0;
+                for (int row = 0; row < boardSize; ++row) {
+                    if (seq.finalBoard.isCellFilled(row, col)) filledCount++;
+                }
+                if (filledCount == boardSize) bs.potentialColClears++;
+                else if (filledCount >= 7) bs.potentialColClears++;
+                else if (filledCount >= 6) bs.almostFullCols++;
+            }
+            
+            // Calculate center control
+            for (int row = 2; row < 6; ++row) {
+                for (int col = 2; col < 6; ++col) {
+                    if (seq.finalBoard.isCellFilled(row, col)) bs.centerControl++;
+                }
+            }
+            
+            // Calculate edge spread
+            for (int row = 0; row < boardSize; ++row) {
+                for (int col = 0; col < boardSize; ++col) {
+                    if (seq.finalBoard.isCellFilled(row, col)) {
+                        if (row == 0 || row == boardSize-1 || col == 0 || col == boardSize-1) {
+                            bs.edgeSpread++;
+                        }
+                    }
+                }
+            }
+            
+            // NEW SCORING: Prioritize cleared cells, then board quality
+            // Cells cleared during sequence is most important (actual points earned)
+            bs.score = (bs.totalCellsCleared * 15) +          // HIGH: Actual cleared cells
+                       (bs.totalLinesCleared * 80) +          // HIGH: Lines cleared (bonus)
+                       (bs.potentialRowClears * 60) +         // Setup for future clears
+                       (bs.potentialColClears * 60) +
+                       (bs.almostFullRows * 30) +
+                       (bs.almostFullCols * 30) +
+                       (bs.emptyCells * 2) +                  // More empty = more flexibility
+                       (bs.centerControl * 2) -               // Slight bonus for center
+                       (bs.edgeSpread * 1);                   // Slight penalty for edges
+            
+            return bs;
+        }
+        
+        // NEW: Get top 3 placements considering all permutations with blasting
+        std::vector<BoardScore> GetTop3BoardsWithBlasting(const std::vector<Box>& boxes) {
+            auto startTime = std::chrono::high_resolution_clock::now();
+            
+            // Color palette for different pieces
+            std::vector<std::string> pieceColors = {
+                PrintUtils::RED, PrintUtils::GREEN, PrintUtils::YELLOW,
+                PrintUtils::BLUE, PrintUtils::MAGENTA, PrintUtils::CYAN
+            };
+            
+            // Store the original board for display
+            Board originalBoard = board;
+            
+            std::cout << "\n" << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "         🧠 SMART BOT: ANALYZING ALL PLACEMENTS WITH BLASTING         " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+            
+            // Print pieces
+            std::cout << PrintUtils::GRAY << "📦 Available pieces: " << PrintUtils::RESET;
+            for (size_t i = 0; i < boxes.size(); ++i) {
+                std::string color = pieceColors[i % pieceColors.size()];
+                std::cout << color << "[" << (i+1) << "] " << boxes[i].getName() << PrintUtils::RESET;
+                if (i < boxes.size() - 1) std::cout << ", ";
+            }
+            std::cout << "\n";
+            
+            // Show permutation info
+            int numPermutations = 1;
+            for (size_t i = 1; i <= boxes.size(); ++i) numPermutations *= i;
+            std::cout << PrintUtils::GRAY << "🔄 Considering " << numPermutations << " piece orderings (any order allowed)" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::GRAY << "💥 Blasting after EACH piece placement" << PrintUtils::RESET << "\n\n";
+            
+            // Generate all placement sequences
+            std::vector<PlacementSequence> allSequences = GenerateAllPlacementsWithBlasting(boxes);
+            
+            auto endTime = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+            
+            if (allSequences.empty()) {
+                std::cout << PrintUtils::RED << "⚠ No valid placement sequences found!" << PrintUtils::RESET << "\n";
+                return {};
+            }
+            
+            std::cout << PrintUtils::GREEN << "✓ Generated " << allSequences.size() << " possible sequences" << PrintUtils::RESET << "\n";
+            
+            // Calculate scores for all sequences
+            std::vector<BoardScore> scores;
+            for (size_t i = 0; i < allSequences.size(); ++i) {
+                BoardScore bs = calculateSequenceScore(allSequences[i], i, boxes);
+                scores.push_back(bs);
+            }
+            
+            // Sort by score (highest first)
+            std::sort(scores.begin(), scores.end(), [](const BoardScore& a, const BoardScore& b) {
+                return a.score > b.score;
+            });
+            
+            // Statistics
+            int maxScore = scores.front().score;
+            int minScore = scores.back().score;
+            int avgScore = 0;
+            int maxCleared = 0;
+            for (const auto& s : scores) {
+                avgScore += s.score;
+                if (s.totalCellsCleared > maxCleared) maxCleared = s.totalCellsCleared;
+            }
+            avgScore /= static_cast<int>(scores.size());
+            
+            std::cout << "\n" << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                        ANALYSIS STATISTICS                           " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╠══════════════════════════════════════════════════════════════════════╣" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  ⏱ Analysis Time: " << duration.count() << " ms" << std::string(48 - std::to_string(duration.count()).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  📊 Total Sequences: " << scores.size() << std::string(46 - std::to_string(scores.size()).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::GREEN << "▲ Best Score: " << maxScore << PrintUtils::RESET << std::string(54 - std::to_string(maxScore).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::YELLOW << "● Average Score: " << avgScore << PrintUtils::RESET << std::string(51 - std::to_string(avgScore).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  " << PrintUtils::RED << "▼ Lowest Score: " << minScore << PrintUtils::RESET << std::string(52 - std::to_string(minScore).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "  💥 Max Cells Cleared: " << maxCleared << std::string(44 - std::to_string(maxCleared).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+            
+            // Return top 3
+            size_t topCount = std::min(scores.size(), static_cast<size_t>(3));
+            std::vector<BoardScore> top3(scores.begin(), scores.begin() + topCount);
+            
+            // Display top 3
+            if (!top3.empty()) {
+                std::cout << PrintUtils::MAGENTA << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "                  🏆 TOP " << topCount << " RECOMMENDED SEQUENCES 🏆                   " << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "\n";
+                std::cout << PrintUtils::MAGENTA << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+                
+                std::string medals[] = {"🥇", "🥈", "🥉"};
+                std::string rankColors[] = {PrintUtils::YELLOW, PrintUtils::GRAY, "\033[38;5;166m"};
+                
+                for (size_t i = 0; i < topCount; ++i) {
+                    const BoardScore& bs = top3[i];
+                    std::string rankColor = rankColors[i];
+                    
+                    std::cout << rankColor << "┌─────────────────────────────────────────────────────────────────────┐" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << " " << medals[i] << " " << rankColor << "OPTION " << (i + 1) << PrintUtils::RESET << " - Score: " << PrintUtils::GREEN << bs.score << PrintUtils::RESET << std::string(44 - std::to_string(bs.score).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "├─────────────────────────────────────────────────────────────────────┤" << PrintUtils::RESET << "\n";
+                    
+                    // Show placement order
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  📋 Placement Order: ";
+                    for (size_t j = 0; j < bs.pieceOrder.size(); ++j) {
+                        int pIdx = bs.pieceOrder[j];
+                        std::string pColor = pieceColors[pIdx % pieceColors.size()];
+                        std::cout << pColor << boxes[pIdx].getName() << PrintUtils::RESET;
+                        if (j < bs.pieceOrder.size() - 1) std::cout << " → ";
+                    }
+                    std::cout << std::string(5, ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    
+                    // Show cleared stats
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  💥 Cells Cleared: " << bs.totalCellsCleared << " | Lines: " << bs.totalLinesCleared << std::string(33 - std::to_string(bs.totalCellsCleared).length() - std::to_string(bs.totalLinesCleared).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << "  📍 Empty After: " << bs.emptyCells << "/64 | Future Clear Setup: " << (bs.potentialRowClears + bs.potentialColClears) << std::string(13 - std::to_string(bs.emptyCells).length() - std::to_string(bs.potentialRowClears + bs.potentialColClears).length(), ' ') << rankColor << "│" << PrintUtils::RESET << "\n";
+                    
+                    std::cout << rankColor << "├─────────────────────────────────────────────────────────────────────┤" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "│" << PrintUtils::RESET << " " << PrintUtils::RED << "■" << PrintUtils::RESET << "=Piece1 " << PrintUtils::GREEN << "■" << PrintUtils::RESET << "=Piece2 " << PrintUtils::YELLOW << "■" << PrintUtils::RESET << "=Piece3 " << "[#]=Original (order may vary)  " << rankColor << "│" << PrintUtils::RESET << "\n";
+                    std::cout << rankColor << "└─────────────────────────────────────────────────────────────────────┘" << PrintUtils::RESET << "\n";
+                    
+                    // Print board with piece highlighting
+                    // Reorder pieceCoords based on pieceOrder to show which piece went where
+                    printBoardWithMultiPieceHighlight(bs.board, bs.pieceCoords, originalBoard);
+                    std::cout << "\n";
+                }
+            }
+            
+            return top3;
         }
 
         bool useThisBoard(const Board& newBoard) {
@@ -1565,135 +2259,178 @@ Box randomShapeInBundle () {
     return boxes[randomIndex];
 }
 
+// Function to display the game title and welcome screen
+void displayWelcomeScreen() {
+    system("clear");
+    std::cout << PrintUtils::CYAN << R"(
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║    ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗    ██████╗ ██╗      █████╗   ║
+║    ██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝    ██╔══██╗██║     ██╔══██╗  ║
+║    ██████╔╝██║     ██║   ██║██║     █████╔╝     ██████╔╝██║     ███████║  ║
+║    ██╔══██╗██║     ██║   ██║██║     ██╔═██╗     ██╔══██╗██║     ██╔══██║  ║
+║    ██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗    ██████╔╝███████╗██║  ██║  ║
+║    ╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝    ╚═════╝ ╚══════╝╚═╝  ╚═╝  ║
+║                                                                           ║
+║                        🎮 BLOCK BLAST BOT 🎮                              ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+)" << PrintUtils::RESET << "\n";
+}
+
+// Function to display turn header
+void displayTurnHeader(int turnNumber, int totalScore) {
+    std::cout << "\n" << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+    std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                           " << PrintUtils::YELLOW << "TURN " << turnNumber << PrintUtils::RESET << "                                     " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+    std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                      Total Score: " << PrintUtils::GREEN << totalScore << PrintUtils::RESET << std::string(32 - std::to_string(totalScore).length(), ' ') << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+    std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+}
+
+// Function to display current board status
+void displayBoardStatus(BlockBlastGame& game) {
+    std::cout << PrintUtils::GRAY << "─────────────────── Current Board ───────────────────" << PrintUtils::RESET << "\n";
+    game.displayBoard();
+    game.getEmptyCellCount();
+    std::cout << PrintUtils::GRAY << "─────────────────────────────────────────────────────" << PrintUtils::RESET << "\n\n";
+}
+
 
 int main() {
     srand(time(NULL));
-
-    Board tempBoard;
-    std::vector<Box> tempBoxes;
-    std::vector<Board> possibleBoards;
+    
+    displayWelcomeScreen();
+    std::cout << PrintUtils::GREEN << "Press ENTER to start the game..." << PrintUtils::RESET;
+    std::cin.get();
     
     BlockBlastGame game;
-    game.displayBoard();
-    game.getEmptyCellCount();
-    game.placeBoxOnBoard(SquareBox(3), 0, 0);
-    game.displayBoard();
-    game.getEmptyCellCount();
-    game.placeBoxOnBoard(RectangleBox(2,3), 4, 4);
-    game.displayBoard();
-    game.getEmptyCellCount();
-
-    for (int i = 0; i < 3; ++i) {
-        tempBoxes.push_back(randomShapeInBundle());
-    }
-        Box selectedBox = randomShapeInBundle();
-        // NotifySelectedBox(selectedBox);
+    int turnNumber = 1;
+    int totalScore = 0;
+    int totalClearedCells = 0;
+    
+    // Main game loop
+    while (true) {
+        system("clear");
+        displayTurnHeader(turnNumber, totalScore);
+        displayBoardStatus(game);
         
-        // possibleBoards = game.GenerateAllPossibleBoards(selectedBox);
-        possibleBoards = game.GenerateAllPossibleBoardsByManyPiecesCombination(tempBoxes);
-
-        // game.useThisBoard(tempBoard);
+        // Step 1: User selects 3 pieces
+        std::cout << PrintUtils::MAGENTA << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+        std::cout << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "              📦 SELECT 3 PIECES FOR THIS TURN 📦                     " << PrintUtils::MAGENTA << "║" << PrintUtils::RESET << "\n";
+        std::cout << PrintUtils::MAGENTA << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+        
+        std::vector<Box> selectedPieces;
+        std::vector<std::string> pieceColors = {PrintUtils::RED, PrintUtils::GREEN, PrintUtils::YELLOW};
+        
+        for (int i = 0; i < 3; ++i) {
+            std::cout << pieceColors[i] << "┌─────────────────────────────────────────────────────────────────────┐" << PrintUtils::RESET << "\n";
+            std::cout << pieceColors[i] << "│" << PrintUtils::RESET << "                      Select Piece #" << (i + 1) << "                                 " << pieceColors[i] << "│" << PrintUtils::RESET << "\n";
+            std::cout << pieceColors[i] << "└─────────────────────────────────────────────────────────────────────┘" << PrintUtils::RESET << "\n";
+            
+            Box piece = MenuBoxSelection();
+            selectedPieces.push_back(piece);
+            
+            system("clear");
+            displayTurnHeader(turnNumber, totalScore);
+            
+            std::cout << PrintUtils::GRAY << "Selected pieces so far:" << PrintUtils::RESET << "\n";
+            for (size_t j = 0; j <= static_cast<size_t>(i); ++j) {
+                std::cout << pieceColors[j] << "[" << (j+1) << "] " << selectedPieces[j].getName() << PrintUtils::RESET;
+                if (j < static_cast<size_t>(i)) std::cout << " → ";
+            }
+            std::cout << "\n\n";
+        }
+        
+        // Step 2: Get top 3 placements (NEW: considers all permutations with blasting)
+        std::vector<BoardScore> top3 = game.GetTop3BoardsWithBlasting(selectedPieces);
+        
+        if (top3.empty()) {
+            std::cout << PrintUtils::RED << "\n╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::RED << "║" << PrintUtils::RESET << "                        💀 GAME OVER 💀                               " << PrintUtils::RED << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::RED << "║" << PrintUtils::RESET << "          No valid placements available for these pieces!             " << PrintUtils::RED << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::RED << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+            
+            std::cout << PrintUtils::YELLOW << "Final Statistics:" << PrintUtils::RESET << "\n";
+            std::cout << "  Total Turns: " << turnNumber << "\n";
+            std::cout << "  Total Score: " << totalScore << "\n";
+            std::cout << "  Total Cells Cleared: " << totalClearedCells << "\n\n";
+            break;
+        }
+        
+        // Step 3: User selects one of the top 3
+        int choice = 0;
+        while (choice < 1 || choice > static_cast<int>(top3.size())) {
+            std::cout << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                    🎯 SELECT YOUR PLACEMENT 🎯                       " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n";
+            std::cout << "Enter your choice (1-" << top3.size() << "): ";
+            std::cin >> choice;
+            
+            if (choice < 1 || choice > static_cast<int>(top3.size())) {
+                std::cout << PrintUtils::RED << "Invalid choice! Please enter 1-" << top3.size() << PrintUtils::RESET << "\n";
+            }
+        }
+        std::cin.ignore(); // Clear the newline
+        
+        // Step 4: Apply the selected board (already includes all blasting!)
+        BoardScore selectedBoard = top3[choice - 1];
+        game.useThisBoard(selectedBoard.board);
+        
+        std::cout << "\n" << PrintUtils::GREEN << "✓ Applied placement sequence #" << choice << PrintUtils::RESET << "\n";
+        
+        // Show placement order that was used
+        std::cout << PrintUtils::GRAY << "  Piece order: " << PrintUtils::RESET;
+        for (size_t i = 0; i < selectedBoard.pieceOrder.size(); ++i) {
+            int pIdx = selectedBoard.pieceOrder[i];
+            std::cout << pieceColors[pIdx % pieceColors.size()] << selectedPieces[pIdx].getName() << PrintUtils::RESET;
+            if (i < selectedBoard.pieceOrder.size() - 1) std::cout << " → ";
+        }
+        std::cout << "\n";
+        
+        // Update statistics from the pre-calculated blast results
+        int cellsClearedThisTurn = selectedBoard.totalCellsCleared;
+        int linesClearedThisTurn = selectedBoard.totalLinesCleared;
+        totalClearedCells += cellsClearedThisTurn;
+        
+        // Score calculation
+        int placementScore = selectedBoard.score;
+        int blastBonus = (linesClearedThisTurn * 100);  // Bonus for lines cleared during sequence
+        
+        if (cellsClearedThisTurn > 0) {
+            std::cout << PrintUtils::MAGENTA << "\n💥 Lines cleared during sequence: " << linesClearedThisTurn << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::GREEN << "🎉 Cells cleared: " << cellsClearedThisTurn << " → +" << blastBonus << " bonus points!" << PrintUtils::RESET << "\n";
+        } else {
+            std::cout << PrintUtils::YELLOW << "\n⚠ No lines cleared this turn" << PrintUtils::RESET << "\n";
+        }
+        
+        totalScore += placementScore;
+        
+        // Step 5: Show result (blast already happened during analysis!)
+        std::cout << "\n" << PrintUtils::GRAY << "─────────────────── Board After Turn ───────────────────" << PrintUtils::RESET << "\n";
         game.displayBoard();
         game.getEmptyCellCount();
-
-    tempBoxes.clear();
-    for (int i = 0; i < 3; ++i) {
-        tempBoxes.push_back(randomShapeInBundle());
+        std::cout << PrintUtils::GRAY << "─────────────────────────────────────────────────────────" << PrintUtils::RESET << "\n";
+        
+        std::cout << "\n" << PrintUtils::YELLOW << "Turn " << turnNumber << " Complete! Current Score: " << totalScore << PrintUtils::RESET << "\n\n";
+        
+        // Ask to continue
+        std::cout << "Press " << PrintUtils::GREEN << "ENTER" << PrintUtils::RESET << " to continue to next turn, or type " << PrintUtils::RED << "'q'" << PrintUtils::RESET << " to quit: ";
+        std::string input;
+        std::getline(std::cin, input);
+        
+        if (input == "q" || input == "Q") {
+            std::cout << "\n" << PrintUtils::CYAN << "╔══════════════════════════════════════════════════════════════════════╗" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "║" << PrintUtils::RESET << "                     🎮 THANKS FOR PLAYING! 🎮                        " << PrintUtils::CYAN << "║" << PrintUtils::RESET << "\n";
+            std::cout << PrintUtils::CYAN << "╚══════════════════════════════════════════════════════════════════════╝" << PrintUtils::RESET << "\n\n";
+            
+            std::cout << PrintUtils::YELLOW << "Final Statistics:" << PrintUtils::RESET << "\n";
+            std::cout << "  Total Turns: " << turnNumber << "\n";
+            std::cout << "  Total Score: " << PrintUtils::GREEN << totalScore << PrintUtils::RESET << "\n";
+            std::cout << "  Total Cells Cleared: " << totalClearedCells << "\n\n";
+            break;
+        }
+        
+        turnNumber++;
     }
-        selectedBox = randomShapeInBundle();
-        // NotifySelectedBox(selectedBox);
-        
-        // possibleBoards = game.GenerateAllPossibleBoards(selectedBox);
-        possibleBoards = game.GenerateAllPossibleBoardsByManyPiecesCombination(tempBoxes);
-
-        // game.useThisBoard(tempBoard);
-        game.displayBoard();
-        game.getEmptyCellCount();
-        
-        // Check and clear any full rows/columns
-        // ClearedBoardInfo clearInfo = game.blastTheBoard();
-        
-        // Show the board after blasting if anything was cleared
-        // if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
-        //     std::cout << "\n[Board After Blasting]" << std::endl;
-        //     game.displayBoard();
-        //     game.getEmptyCellCount();
-        // }
-    // }
-
-    // for (int i = 0; i <= 20; ++i) {
-    //     Box selectedBox = randomShapeInBundle();
-    //     // NotifySelectedBox(selectedBox);
-        
-    //     tempBoard = game.BruteForceAlgorithm(selectedBox);
-    //     game.useThisBoard(tempBoard);
-    //     game.displayBoard();
-    //     game.getEmptyCellCount();
-        
-    //     // Check and clear any full rows/columns
-    //     ClearedBoardInfo clearInfo = game.blastTheBoard();
-        
-    //     // Show the board after blasting if anything was cleared
-    //     if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
-    //         std::cout << "\n[Board After Blasting]" << std::endl;
-    //         game.displayBoard();
-    //         game.getEmptyCellCount();
-    //     }
-    // }
-    
-    // while (true) {
-    //     Box selectedBox = MenuBoxSelection();
-    //     NotifySelectedBox(selectedBox);
-        
-    //     tempBoard = game.BruteForceAlgorithm(selectedBox);
-    //     game.useThisBoard(tempBoard);
-    //     game.displayBoard();
-    //     game.getEmptyCellCount();
-        
-    //     // Check and clear any full rows/columns
-    //     ClearedBoardInfo clearInfo = game.blastTheBoard();
-        
-    //     // Show the board after blasting if anything was cleared
-    //     if (clearInfo.clearedRows > 0 || clearInfo.clearedCols > 0) {
-    //         std::cout << "\n[Board After Blasting]" << std::endl;
-    //         game.displayBoard();
-    //         game.getEmptyCellCount();
-    //     }
-        
-    //     char continueChoice;
-    //     std::cout << "Do you want to place another box? (y/n): ";
-    //     std::cin >> continueChoice;
-    //     if (continueChoice != 'y' && continueChoice != 'Y') {
-    //         break;
-    //     }
-    // }
-    
-
-    // game.randomlyPlaceBlocks();
-    // game.displayBoard();
-    // game.getEmptyCellCount();
-
-    // game.placeBoxOnBoard(SquareBox(3), 6, 0);
-    // std::cout << "\nAfter placing a 3x3 SquareBox at (0,0):\n";
-    // game.displayBoard();
-    // game.getEmptyCellCount();
-
-    // Board simBoard = game.BruteForceAlgorithm(RectangleBox(2,3));
-    // simBoard.printVisual();
-    // std::cout << "\nAfter BruteForceAlgorithm to place a 2x3 RectangleBox:\n";
-    // game.displayBoard();
-    // game.getEmptyCellCount();
-
-    // printf("Box Visual Representation:\n");
-    // std::vector<Box> boxes = BoxBundle();
-    // for (const auto& box : boxes) {
-    //     std::cout << "Box Name: " << box.getName() << std::endl;
-    //     printBoxVisualOnBoard(box, 0, 0, 5);
-    //     std::cout << std::endl;
-    // }
-
-    // Box selectedBox = MenuBoxSelection();
-    // NotifySelectedBox(selectedBox);
     
     return 0;
 }
